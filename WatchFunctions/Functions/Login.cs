@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 using WatchFunctions.Model;
 using System.Linq;
 
-namespace WatchFunctions
+namespace WatchFunctions.Functions
 {
     public static class Login
     {

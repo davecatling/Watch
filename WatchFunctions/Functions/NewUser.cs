@@ -11,7 +11,7 @@ using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
 using WatchFunctions.Model;
 
-namespace WatchFunctions
+namespace WatchFunctions.Functions
 {
     public static class NewUser
     {
