@@ -26,7 +26,7 @@ namespace WatchWpfClient.Model
         private void SyncTimer_Elapsed(object? sender, ElapsedEventArgs e)
         {
             AddNewSync();
-            _syncTimer.Interval = new Random().NextInt64(TimeSyncs!.Count < 3 ? 2000 : 10000, TimeSyncs.Count < 3 ? 10000 : 60000);
+            //_syncTimer.Interval = new Random().NextInt64(TimeSyncs!.Count < 3 ? 2000 : 10000, TimeSyncs.Count < 3 ? 10000 : 60000);
         }
 
         private void AddNewSync()

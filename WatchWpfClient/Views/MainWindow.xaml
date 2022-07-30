@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WatchWpfClient"
+        xmlns:controls="clr-namespace:WatchWpfClient.Views.Controls"
         mc:Ignorable="d"
         Title="MainWindow" Height="900" Width="800">
     <Window.Resources>
@@ -113,6 +114,16 @@
         </Grid>
         <StackPanel Grid.Row="1" Orientation="Vertical">
             <Separator/>
+            <ScrollViewer VerticalScrollBarVisibility="Visible" MinHeight="800">
+                <ListBox ItemsSource="{Binding Path=TimeSyncs}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Path=Text}"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ListBox>
+            </ScrollViewer>
+            <!--<controls:TimeSyncDisplay></controls:TimeSyncDisplay>-->
         </StackPanel>
     </Grid>
 </Window>
