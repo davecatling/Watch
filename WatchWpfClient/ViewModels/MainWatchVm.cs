@@ -18,9 +18,9 @@ namespace WatchWpfClient.ViewModels
         private readonly WatchApp _watchApp;
         private WatchVmState _state;
         private object _timeSyncLock;
-        private ObservableCollection<TimeSync> _timeSyncs;
+        private ObservableCollection<TimeSync>? _timeSyncs;
 
-        public ObservableCollection<TimeSync> TimeSyncs
+        public ObservableCollection<TimeSync>? TimeSyncs
         {
             get => _timeSyncs;
             private set
@@ -50,8 +50,7 @@ namespace WatchWpfClient.ViewModels
             State = WatchVmState.Normal;
             _timeSyncLock = new object();
             TimeSyncs = new ObservableCollection<TimeSync>();
-            BindingOperations.EnableCollectionSynchronization(TimeSyncs, _timeSyncLock);
-            
+            BindingOperations.EnableCollectionSynchronization(TimeSyncs, _timeSyncLock);            
         }
 
         private void OnPropertyChanged(string propertyName)
@@ -70,9 +69,9 @@ namespace WatchWpfClient.ViewModels
             lock (_timeSyncLock)
             {
                 if (changeType == WatchApp.ChangeType.Added)
-                    TimeSyncs.Add(timeSync);
+                    TimeSyncs!.Add(timeSync);
                 else
-                    TimeSyncs.Remove(timeSync);
+                    TimeSyncs!.Remove(timeSync);
             }            
         }
     }

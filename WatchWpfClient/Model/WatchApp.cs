@@ -31,19 +31,15 @@ namespace WatchWpfClient.Model
 
         private void AddNewSync()
         {
-            TimeSync newTimeSync;
-            if (TimeSyncs!.Count > 0)
-                newTimeSync = new TimeSync(TimeSyncs.Last());
-            else
-                newTimeSync = new TimeSync();
-            TimeSyncs.Add(newTimeSync);
+            TimeSync newTimeSync = new TimeSync();
+            TimeSyncs!.Add(newTimeSync);
             ItemAddedOrRemoved?.Invoke(this, new ItemAddedOrRemovedEventArgs(newTimeSync, ChangeType.Added));
             CullTimeSyncs();
         }
 
         private void CullTimeSyncs()
         {
-            while (TimeSyncs!.Count > 10)
+            while (TimeSyncs!.Count > 20)
             {
                 var oldestSync = TimeSyncs.MinBy(ts => ts.Time);
                 if (oldestSync != null)

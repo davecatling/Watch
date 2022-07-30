@@ -6,15 +6,13 @@
              xmlns:local="clr-namespace:WatchWpfClient.Views.Controls"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800" DataContext="{StaticResource MainWatchVm}">
-    <Grid>
-        <ScrollViewer VerticalScrollBarVisibility="Visible" MinHeight="800">
-            <ItemsControl ItemsSource="{Binding Path=TimeSyncs}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="{Binding Path=Text}"/>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </ScrollViewer>
-    </Grid>
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <ItemsControl ItemsSource="{Binding Path=TimeSyncs}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Path=Text}" HorizontalAlignment="Center"/>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </ScrollViewer>
 </UserControl>

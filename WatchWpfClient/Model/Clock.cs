@@ -50,7 +50,7 @@ namespace WatchWpfClient.Model
         public Clock()
         {
             var time = DateTime.Now;
-            HourStartAngle = ((Math.Abs(time.Hour -12) + (time.Minute / 60F)) / 12F) * 360;
+            HourStartAngle = ((time.Hour/12F) * 360) + (((time.Minute /60F) /12)*360);
             MinuteStartAngle = (time.Minute / 60F) * 360;
             SecondStartAngle = (time.Second / 60F) * 360;
             var millisecondsTillNextSecond = time.Millisecond == 0 ? 999 : 1000 - time.Millisecond;
