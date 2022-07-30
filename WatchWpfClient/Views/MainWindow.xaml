@@ -51,7 +51,7 @@
                   VerticalAlignment="Center"
                   RenderTransformOrigin=".5,.5">
                 <Line.RenderTransform>
-                    <RotateTransform Angle="{Binding Path=HourStartAngle, Mode=OneTime}"/>
+                    <RotateTransform Angle="{Binding Path=Clock.HourStartAngle, Mode=OneTime}"/>
                 </Line.RenderTransform>
             </Line>
             <Line x:Name="Minute"
@@ -62,7 +62,7 @@
                   VerticalAlignment="Center"
                   RenderTransformOrigin=".5,.5">
                 <Line.RenderTransform>
-                    <RotateTransform Angle="{Binding Path=MinuteStartAngle, Mode=OneTime}"/>
+                    <RotateTransform Angle="{Binding Path=Clock.MinuteStartAngle, Mode=OneTime}"/>
                 </Line.RenderTransform>
             </Line>
             <Line x:Name="Second"
@@ -73,7 +73,7 @@
                   VerticalAlignment="Center"
                   RenderTransformOrigin=".5,.5">
                 <Line.RenderTransform>
-                    <RotateTransform Angle="{Binding Path=SecondStartAngle, Mode=OneTime}"/>
+                    <RotateTransform Angle="{Binding Path=Clock.SecondStartAngle, Mode=OneTime}"/>
                 </Line.RenderTransform>
             </Line>
             <Grid.Triggers>
@@ -83,7 +83,7 @@
                             <DoubleAnimation
                                 Storyboard.TargetName="Second"
                                 Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)"
-                                Duration="{Binding Path=SecondStartDuration, Mode=OneTime}"
+                                Duration="{Binding Path=Clock.SecondStartDuration, Mode=OneTime}"
                                 To="360"
                                 Completed="DoubleAnimation_Completed"/>
                         </Storyboard>
@@ -93,7 +93,7 @@
                             <DoubleAnimation
                                 Storyboard.TargetName="Minute"
                                 Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)"
-                                Duration="{Binding Path=MinuteStartDuration, Mode=OneTime}"
+                                Duration="{Binding Path=Clock.MinuteStartDuration, Mode=OneTime}"
                                 To="360"
                                 Completed="DoubleAnimation_Completed_1"/>
                         </Storyboard>
@@ -103,7 +103,7 @@
                             <DoubleAnimation
                                 Storyboard.TargetName="Hour"
                                 Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)"
-                                Duration="{Binding Path=HourStartDuration, Mode=OneTime}"
+                                Duration="{Binding Path=Clock.HourStartDuration, Mode=OneTime}"
                                 To="360"
                                 Completed="DoubleAnimation_Completed_2"/>
                         </Storyboard>
@@ -111,5 +111,8 @@
                 </EventTrigger>
             </Grid.Triggers>
         </Grid>
+        <StackPanel Grid.Row="1" Orientation="Vertical">
+            <Separator/>
+        </StackPanel>
     </Grid>
 </Window>
