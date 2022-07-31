@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:WatchWpfClient"
         xmlns:controls="clr-namespace:WatchWpfClient.Views.Controls"
         mc:Ignorable="d"
-        Title="MainWindow" Height="800" Width="800">
+        Title="Web Assisted Time CHeck" Height="800" Width="800">
     <Window.Resources>
         <Storyboard x:Key="SecsAfterFinishSb">
             <DoubleAnimation
@@ -79,6 +79,32 @@
                     <RotateTransform Angle="{Binding Path=Clock.SecondStartAngle, Mode=OneTime}"/>
                 </Line.RenderTransform>
             </Line>
+            <Button x:Name="button0" HorizontalAlignment="Center" Height="34" Margin="0,199,0,0" VerticalAlignment="Top" Width="34" Opacity="0"
+                    Command="{Binding Path=ToggleChannelInputCommand}"/>
+            <Button x:Name="button12" HorizontalAlignment="Left" Margin="183,41,0,0" VerticalAlignment="Top" Height="43" Opacity="0" Width="40"
+                    Command="{Binding Path=AddChannelPartCommand}" CommandParameter="12"/>
+            <Button x:Name="button1" HorizontalAlignment="Left" Margin="245,62,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.017,0.404" Height="33" Width="42" Opacity="0"
+                    Command="{Binding Path=AddChannelPartCommand}" CommandParameter="01"/>
+            <Button x:Name="button2" HorizontalAlignment="Left" Margin="299,117,0,0" VerticalAlignment="Top" Height="37" Width="39" Opacity="0"
+                    Command="{Binding Path=AddChannelPartCommand}" CommandParameter="02"/>
+            <Button x:Name="button3" HorizontalAlignment="Left" Margin="326,0,0,0" VerticalAlignment="Center" Height="41" Width="37" Opacity="0"
+                    Command="{Binding Path=AddChannelPartCommand}" CommandParameter="03"/>
+            <Button x:Name="button4" HorizontalAlignment="Left" Margin="299,273,0,0" VerticalAlignment="Top" Height="44" Width="39" Opacity="0"
+                    Command="{Binding Path=AddChannelPartCommand}" CommandParameter="04"/>
+            <Button x:Name="button5" HorizontalAlignment="Left" Margin="245,324,0,0" VerticalAlignment="Top" Height="39" Width="49" Opacity="0"
+                    Command="{Binding Path=AddChannelPartCommand}" CommandParameter="05"/>
+            <Button x:Name="button6" HorizontalAlignment="Center" Margin="0,344,0,0" VerticalAlignment="Top" Opacity="0" Height="39" Width="34"
+                    Command="{Binding Path=AddChannelPartCommand}" CommandParameter="06"/>
+            <Button x:Name="button7" HorizontalAlignment="Left" Margin="114,317,0,0" VerticalAlignment="Top" Height="46" Width="35" Opacity="0"
+                    Command="{Binding Path=AddChannelPartCommand}" CommandParameter="07"/>
+            <Button x:Name="button8" HorizontalAlignment="Left" Margin="63,267,0,0" VerticalAlignment="Top" Opacity="0" Height="43" Width="35"
+                    Command="{Binding Path=AddChannelPartCommand}" CommandParameter="08"/>
+            <Button x:Name="button9" HorizontalAlignment="Left" Margin="41,0,0,0" VerticalAlignment="Center" Opacity="0" Height="41" Width="39"
+                    Command="{Binding Path=AddChannelPartCommand}" CommandParameter="09"/>
+            <Button x:Name="button10" HorizontalAlignment="Left" Margin="63,117,0,0" VerticalAlignment="Top" Opacity="0" Height="37" Width="46"
+                    Command="{Binding Path=AddChannelPartCommand}" CommandParameter="10"/>
+            <Button x:Name="button11" HorizontalAlignment="Left" Margin="114,62,0,0" VerticalAlignment="Top" Opacity="0" Height="42" Width="42"
+                    Command="{Binding Path=AddChannelPartCommand}" CommandParameter="11"/>
             <Grid.Triggers>
                 <EventTrigger RoutedEvent="Loaded">
                     <BeginStoryboard>
@@ -110,20 +136,20 @@
                                 To="360"
                                 Completed="DoubleAnimation_Completed_2"/>
                         </Storyboard>
-                    </BeginStoryboard>                
+                    </BeginStoryboard>
                 </EventTrigger>
             </Grid.Triggers>
         </Grid>
         <GridSplitter Grid.Row="1" Height="5" HorizontalAlignment="Stretch"/>
         <Separator Grid.Row="1"/>
         <Grid Grid.Row="2" >
-            <controls:TimeSyncDisplay></controls:TimeSyncDisplay>            
+            <controls:TimeSyncDisplay></controls:TimeSyncDisplay>
         </Grid>
         <StackPanel Orientation="Vertical" Grid.Row="3">
-        <Separator/>
-        <DockPanel>
-            <Button Width="50" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="5" DockPanel.Dock="Right">Close</Button>
-        </DockPanel>
+            <Separator/>
+            <DockPanel>
+                <Button Width="50" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="5" DockPanel.Dock="Right">Close</Button>
+            </DockPanel>
         </StackPanel>
     </Grid>
 </Window>

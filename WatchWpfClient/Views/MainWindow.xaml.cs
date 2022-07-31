@@ -46,5 +46,10 @@ namespace WatchWpfClient.Views
             var newSB = (Storyboard)resource;
             newSB.Begin();
         }
+
+        private void CenterButton_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("Clicked");
+        }
     }
 }

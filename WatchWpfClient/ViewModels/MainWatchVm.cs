@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
+using System.Windows.Input;
 using System.Windows.Threading;
 using WatchWpfClient.Model;
 
@@ -19,6 +20,8 @@ namespace WatchWpfClient.ViewModels
         private WatchVmState _state;
         private object _timeSyncLock;
         private ObservableCollection<TimeSync>? _timeSyncs;
+        private ICommand? _toggleChannelInputCommand;
+        private ICommand? _addChannelPartCommand;
 
         public ObservableCollection<TimeSync>? TimeSyncs
         {
@@ -53,9 +56,37 @@ namespace WatchWpfClient.ViewModels
             BindingOperations.EnableCollectionSynchronization(TimeSyncs, _timeSyncLock);            
         }
 
+        public ICommand ToggleChannelInputCommand
+        {
+            get
+            {
+                if (_toggleChannelInputCommand == null)
+                    _toggleChannelInputCommand = new RelayCommand((exec) => _watchApp.ToggleChannelInput());
+                return _toggleChannelInputCommand;
+            }
+        }
+
+        public ICommand AddChannelPartCommand
+        {
+            get
+            {
+                if (_addChannelPartCommand == null)
+                    _addChannelPartCommand = new RelayCommand(AddChannelPart);
+                return _addChannelPartCommand;
+            }
+        }
+
         private void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public void AddChannelPart(object channelPart)
+        {
+            if (channelPart is string partString)
+                _watchApp.AddChannelPart(partString);
+            else
+                throw new ArgumentException(nameof(AddChannelPart));
         }
 
         private void WatchApp_ItemAddedOrRemoved(object sender, WatchApp.ItemAddedOrRemovedEventArgs args)

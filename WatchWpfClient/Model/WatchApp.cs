@@ -13,7 +13,15 @@ namespace WatchWpfClient.Model
         public event ItemAddedOrRemovedEventHandler? ItemAddedOrRemoved;
         public List<TimeSync>? TimeSyncs { get; private set; }
 
+        public string? ChannelNumber
+        {
+            get
+            { return _channelInputMode ? null : _channelNumber; }
+        }
+
         private readonly Timer _syncTimer;
+        private bool _channelInputMode;
+        private string? _channelNumber;
 
         public WatchApp()
         {
@@ -26,7 +34,7 @@ namespace WatchWpfClient.Model
         private void SyncTimer_Elapsed(object? sender, ElapsedEventArgs e)
         {
             AddNewSync();
-            //_syncTimer.Interval = new Random().NextInt64(TimeSyncs!.Count < 3 ? 2000 : 10000, TimeSyncs.Count < 3 ? 10000 : 60000);
+            _syncTimer.Interval = new Random().NextInt64(TimeSyncs!.Count < 3 ? 2000 : 10000, TimeSyncs.Count < 3 ? 10000 : 60000);
         }
 
         private void AddNewSync()
@@ -48,6 +56,24 @@ namespace WatchWpfClient.Model
                     ItemAddedOrRemoved?.Invoke(this, new ItemAddedOrRemovedEventArgs(oldestSync, ChangeType.Removed));
                 }
             }
+        }
+
+        public bool ToggleChannelInput()
+        {
+            _channelInputMode = !_channelInputMode;
+            if (_channelInputMode)
+                _channelNumber = null;
+            return _channelInputMode;
+        }
+
+        public void AddChannelPart(string channelPart)
+        {
+            if (!_channelInputMode)
+                throw new InvalidOperationException("Channel input inactive");
+            if (_channelNumber == null)
+                _channelNumber = channelPart;
+            else
+                _channelNumber += channelPart;
         }
 
         public class ItemAddedOrRemovedEventArgs : EventArgs
