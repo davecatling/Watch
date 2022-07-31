@@ -29,12 +29,14 @@ namespace WatchFunctions.Functions
 
             var user = await Entities.GetEntityAsync<UserEntity>("users", "user", handle);
             if (user == null) return new BadRequestObjectResult("Login failed.");
-
             var hashedPassword = HashAndSalt.GetHash(password, user.Salt);
-
             if (!hashedPassword.SequenceEqual(user.Password)) return new BadRequestObjectResult("Login failed.");
+            user.LastAccess = DateTime.Now.ToString();
+            user.SessionToken = Guid.NewGuid().ToString();
 
-            return new OkObjectResult($"{user.RowKey} logged in OK.");
+            await Entities.UpdateEntityAsync("users", user);
+
+            return new OkObjectResult(user.SessionToken);
         }
     }
 }

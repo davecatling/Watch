@@ -14,6 +14,13 @@ namespace WatchFunctions
             return await table.ExecuteAsync(insertOperation);
         }
 
+        public static async Task<TableResult> UpdateEntityAsync(string tableName, TableEntity entity)
+        {
+            var updateOperation = TableOperation.InsertOrMerge(entity);
+            var table = Table(tableName);
+            return await table.ExecuteAsync(updateOperation);
+        }
+
         public static async Task<TEntity> GetEntityAsync<TEntity>(string tableName, string partitionKey, string rowkey) where TEntity : TableEntity, new()
         {
             var table = Table(tableName);
