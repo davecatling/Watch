@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
 using WatchFunctions.Dtos;
+using WatchWpfClient.Model.Dtos;
 
 namespace WatchWpfClient.Model
 {
@@ -13,6 +14,7 @@ namespace WatchWpfClient.Model
         public delegate void ItemAddedOrRemovedEventHandler(object sender, ItemAddedOrRemovedEventArgs args);
         public event ItemAddedOrRemovedEventHandler? ItemAddedOrRemoved;
         public List<TimeSync>? TimeSyncs { get; private set; }
+        public List<Message>? Messages { get; }
 
         public string? ChannelNumber
         {
@@ -30,6 +32,7 @@ namespace WatchWpfClient.Model
         {
             _functionProxy = new FunctionProxy();
             TimeSyncs = new List<TimeSync>();
+            Messages = new List<Message>();
             _syncTimer = new Timer(new Random().NextInt64(2000, 3000));
             _syncTimer.Elapsed += SyncTimer_Elapsed;
             _syncTimer.Start();
@@ -37,7 +40,7 @@ namespace WatchWpfClient.Model
 
         public async Task<bool> NewUser(string handle, string? email, string passWord)
         {
-            var dto = new NewUserDto()
+            var dto = new Dtos.NewUserDto()
             {
                 Handle = handle,
                 Email = email,
@@ -57,10 +60,37 @@ namespace WatchWpfClient.Model
             return false;
         }
 
+        public async void Read()
+        {
+            var latestMessages = await _functionProxy!.Read(_channelNumber!);
+            Messages!.ForEach(msg =>
+            {
+                if (!latestMessages.Any(m => m.Id == msg.Id))
+                    RemoveMessage(msg);
+            });
+            latestMessages.ForEach(msg =>
+            {
+                if (!Messages.Any(m => m.Id == msg.Id))
+                    AddMessage(msg);
+            });
+        }
+
         private void SyncTimer_Elapsed(object? sender, ElapsedEventArgs e)
         {
             AddNewSync();
             _syncTimer.Interval = new Random().NextInt64(TimeSyncs!.Count < 3 ? 2000 : 10000, TimeSyncs.Count < 3 ? 10000 : 60000);
+        }
+
+        private void RemoveMessage(Message msg)
+        {
+            Messages!.Remove(msg);
+            ItemAddedOrRemoved?.Invoke(this, new ItemAddedOrRemovedEventArgs(msg, ChangeType.Removed));
+        }
+
+        private void AddMessage(Message msg)
+        {
+            Messages!.Add(msg);
+            ItemAddedOrRemoved?.Invoke(this, new ItemAddedOrRemovedEventArgs(msg, ChangeType.Added));
         }
 
         private void AddNewSync()

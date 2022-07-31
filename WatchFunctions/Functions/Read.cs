@@ -7,6 +7,7 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using System.Linq;
 
 namespace WatchFunctions.Functions
 {
@@ -19,19 +20,15 @@ namespace WatchFunctions.Functions
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
 
-            if (!req.Headers.ContainsKey("SessionToken"))
-                return new BadRequestObjectResult("No session token");
-
-            var sessionToken = req.Headers["SessionToken"];
-            
-            var user = await Entities.GetUserBySessionAsync(sessionToken);
+            var authHeader = req.Headers["Authorization"][0];
+            if (!authHeader.StartsWith("Bearer "))
+                return new BadRequestObjectResult("Session not found");
+            var user = await Entities.GetUserBySessionAsync(authHeader.Substring(7));
             if (user == null)
                 return new BadRequestObjectResult("Bad session token");
-
             string channelNumber = req.Query["channelNumber"];
-
             var messages = await Entities.ReadMessages(channelNumber);
-
+            //var result = messages.ToList().Select(message => $"{message.Sender}: {message.Text} - {message.Timestamp}");
             return new OkObjectResult(messages);
         }
     }

@@ -12,6 +12,7 @@
     <Window.Resources>
         <converters:StateToTimeSyncVis x:Key="StateToTimeSyncVis"/>
         <converters:StateToLogInVis x:Key="StateToLogInVis"/>
+        <converters:StateToMsgVis x:Key="StateToMsgVis"/>
         <Storyboard x:Key="SecsAfterFinishSb">
             <DoubleAnimation
                 Storyboard.TargetName="Second"
@@ -149,6 +150,7 @@
         <Grid Grid.Row="2" >
             <controls:TimeSyncDisplay Visibility="{Binding Path=State, Converter={StaticResource StateToTimeSyncVis}}"></controls:TimeSyncDisplay>
             <controls:LogIn  Visibility="{Binding Path=State, Converter={StaticResource StateToLogInVis}}"></controls:LogIn>
+            <controls:MessagesDisplay Visibility="{Binding Path=State, Converter={StaticResource StateToMsgVis}}"></controls:MessagesDisplay>
         </Grid>
         <StackPanel Orientation="Vertical" Grid.Row="3">
             <Separator/>

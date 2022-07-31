@@ -20,6 +20,8 @@ namespace WatchWpfClient.ViewModels
         private WatchVmState _state;
         private object _timeSyncLock;
         private ObservableCollection<TimeSync>? _timeSyncs;
+        private object _messageLock;
+        private ObservableCollection<Message>? _messages;
         private string _newUserHandle;
         private string _newUserPassword;
         private string _newUserEmail;
@@ -39,6 +41,17 @@ namespace WatchWpfClient.ViewModels
                 OnPropertyChanged(nameof(TimeSyncs));   
             }
         }
+
+        public ObservableCollection<Message>? Messages
+        {
+            get => _messages;
+            private set
+            {
+                _messages = value;
+                OnPropertyChanged(nameof(Messages));
+            }
+        }
+
         public event PropertyChangedEventHandler? PropertyChanged;
 
         public string NewUserHandle
@@ -109,8 +122,11 @@ namespace WatchWpfClient.ViewModels
             _watchApp.ItemAddedOrRemoved += WatchApp_ItemAddedOrRemoved;
             State = WatchVmState.Normal;
             _timeSyncLock = new object();
+            _messageLock = new object();
             TimeSyncs = new ObservableCollection<TimeSync>();
-            BindingOperations.EnableCollectionSynchronization(TimeSyncs, _timeSyncLock);            
+            Messages = new ObservableCollection<Message>();
+            BindingOperations.EnableCollectionSynchronization(TimeSyncs, _timeSyncLock);
+            BindingOperations.EnableCollectionSynchronization(Messages, _messageLock);
         }
 
         public ICommand ToggleChannelInputCommand
@@ -171,7 +187,10 @@ namespace WatchWpfClient.ViewModels
         {
             var result = await _watchApp.Login(_loginHandle, _loginPassword);
             if (result)
+            {
                 State = WatchVmState.Reading;
+                _watchApp.Read();
+            }
         }
 
         private bool LoginOK()
@@ -204,6 +223,8 @@ namespace WatchWpfClient.ViewModels
         {
             if (args.Item is TimeSync timeSync)
                 UpdateTimeSyncs(timeSync, args.ChangeType);
+            if (args.Item is Message message)
+                UpdateMessages(message, args.ChangeType);
         }
 
         private void UpdateTimeSyncs(TimeSync timeSync, WatchApp.ChangeType changeType)
@@ -215,6 +236,17 @@ namespace WatchWpfClient.ViewModels
                 else
                     TimeSyncs!.Remove(timeSync);
             }            
+        }
+
+        private void UpdateMessages(Message message, WatchApp.ChangeType changeType)
+        {
+            lock (_messageLock)
+            {
+                if (changeType == WatchApp.ChangeType.Added)
+                    Messages!.Add(message);
+                else
+                    Messages!.Remove(message);
+            }
         }
     }
 
