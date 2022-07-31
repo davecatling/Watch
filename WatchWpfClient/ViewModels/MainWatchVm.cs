@@ -41,7 +41,7 @@ namespace WatchWpfClient.ViewModels
             set
             {
                 _state = value;
-                OnPropertyChanged(nameof(WatchVmState));
+                OnPropertyChanged(nameof(State));
             }
         }
 
@@ -61,7 +61,7 @@ namespace WatchWpfClient.ViewModels
             get
             {
                 if (_toggleChannelInputCommand == null)
-                    _toggleChannelInputCommand = new RelayCommand((exec) => _watchApp.ToggleChannelInput());
+                    _toggleChannelInputCommand = new RelayCommand((exec) => ToggleChannelInput());
                 return _toggleChannelInputCommand;
             }
         }
@@ -74,6 +74,12 @@ namespace WatchWpfClient.ViewModels
                     _addChannelPartCommand = new RelayCommand(AddChannelPart);
                 return _addChannelPartCommand;
             }
+        }
+
+        private void ToggleChannelInput()
+        {
+            if (_watchApp.ToggleChannelInput() == false)
+                State = WatchVmState.LogIn;
         }
 
         private void OnPropertyChanged(string propertyName)
@@ -109,6 +115,7 @@ namespace WatchWpfClient.ViewModels
 
     public enum WatchVmState
     {
-        Normal
+        Normal,
+        LogIn
     }
 }
