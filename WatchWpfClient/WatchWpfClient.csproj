@@ -10,6 +10,13 @@
 
   <ItemGroup>
     <None Remove="Images\Clock.png" />
+    <None Remove="Model\WatchConfig.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Model\WatchConfig.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
+using WatchFunctions.Dtos;
 
 namespace WatchWpfClient.Model
 {
@@ -22,13 +23,38 @@ namespace WatchWpfClient.Model
         private readonly Timer _syncTimer;
         private bool _channelInputMode;
         private string? _channelNumber;
+        private string? _sessionToken;
+        private FunctionProxy? _functionProxy;
 
         public WatchApp()
         {
+            _functionProxy = new FunctionProxy();
             TimeSyncs = new List<TimeSync>();
             _syncTimer = new Timer(new Random().NextInt64(2000, 3000));
             _syncTimer.Elapsed += SyncTimer_Elapsed;
             _syncTimer.Start();
+        }
+
+        public async Task<bool> NewUser(string handle, string? email, string passWord)
+        {
+            var dto = new NewUserDto()
+            {
+                Handle = handle,
+                Email = email,
+                Password = passWord
+            };
+            return await _functionProxy!.NewUser(dto);
+        }
+
+        public async Task<bool> Login(string username, string password)
+        {
+            var session = await _functionProxy!.Login(username, password);
+            if (session != null && session != String.Empty)
+            {
+                _sessionToken = session;
+                return true;
+            }
+            return false;
         }
 
         private void SyncTimer_Elapsed(object? sender, ElapsedEventArgs e)

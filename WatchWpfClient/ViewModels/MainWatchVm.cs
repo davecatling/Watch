@@ -20,8 +20,15 @@ namespace WatchWpfClient.ViewModels
         private WatchVmState _state;
         private object _timeSyncLock;
         private ObservableCollection<TimeSync>? _timeSyncs;
+        private string _newUserHandle;
+        private string _newUserPassword;
+        private string _newUserEmail;
+        private string _loginHandle;
+        private string _loginPassword;
         private ICommand? _toggleChannelInputCommand;
         private ICommand? _addChannelPartCommand;
+        private ICommand? _newUserCommand;
+        private ICommand? _loginCommand;
 
         public ObservableCollection<TimeSync>? TimeSyncs
         {
@@ -33,6 +40,56 @@ namespace WatchWpfClient.ViewModels
             }
         }
         public event PropertyChangedEventHandler? PropertyChanged;
+
+        public string NewUserHandle
+        {
+            get => _newUserHandle;
+            set
+            {
+                _newUserHandle = value;
+                OnPropertyChanged(nameof(NewUserHandle));
+            }
+        }
+
+        public string NewUserPassword
+        {
+            get => _newUserPassword;
+            set
+            {
+                _newUserPassword = value;
+                OnPropertyChanged(nameof(NewUserPassword));
+            }
+        }
+
+        public string NewUserEmail
+        {
+            get => _newUserEmail;
+            set
+            {
+                _newUserEmail = value;
+                OnPropertyChanged(nameof(NewUserEmail));
+            }
+        }
+
+        public string LoginHandle
+        {
+            get => _loginHandle;
+            set
+            {
+                _loginHandle = value;
+                OnPropertyChanged(nameof(LoginHandle));
+            }
+        }
+
+        public string LoginPassword
+        {
+            get => _loginPassword;
+            set
+            {
+                _loginPassword = value;
+                OnPropertyChanged(nameof(LoginPassword));
+            }
+        }
 
         public Clock? Clock { get => _clock; }
         public WatchVmState State
@@ -76,6 +133,54 @@ namespace WatchWpfClient.ViewModels
             }
         }
 
+        public ICommand NewUserCommand
+        {
+            get
+            {
+                if (_newUserCommand == null)
+                    _newUserCommand = new RelayCommand((exec) => NewUser(), (canExec) =>NewUserOK());
+                return _newUserCommand;
+            }
+        }
+
+        public ICommand LoginCommand
+        {
+            get
+            {
+                if (_loginCommand == null)
+                    _loginCommand = new RelayCommand((exec) => Login(), (canExec) => LoginOK());
+                return _loginCommand;
+            }
+        }
+
+        private bool NewUserOK()
+        {
+            if (_newUserHandle.Length >= 8 && _newUserPassword.Length >= 12)
+                return true;
+            return false;
+        }
+
+        private async void NewUser()
+        {
+            var result = await _watchApp.NewUser(_newUserHandle, _newUserEmail, _newUserPassword);
+            if (result)
+                MessageBox.Show($"New user {_newUserHandle} created");
+        }
+
+        private async void Login()
+        {
+            var result = await _watchApp.Login(_loginHandle, _loginPassword);
+            if (result)
+                State = WatchVmState.Reading;
+        }
+
+        private bool LoginOK()
+        {
+            if (_loginHandle?.Length >= 4 && _loginPassword?.Length >= 8)
+                return true;
+            return false;
+        }
+
         private void ToggleChannelInput()
         {
             if (_watchApp.ToggleChannelInput() == false)
@@ -116,6 +221,7 @@ namespace WatchWpfClient.ViewModels
     public enum WatchVmState
     {
         Normal,
-        LogIn
+        LogIn,
+        Reading
     }
 }
