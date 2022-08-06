@@ -155,6 +155,7 @@
         <StackPanel Orientation="Vertical" Grid.Row="3">
             <Separator/>
             <DockPanel>
+                <TextBlock DockPanel.Dock="Left" Text="{Binding Path=Status}" HorizontalAlignment="Stretch" MinWidth="200" Margin="5,0,0,0" VerticalAlignment="Center" />
                 <Button Width="50" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="5" DockPanel.Dock="Right">Close</Button>
             </DockPanel>
         </StackPanel>

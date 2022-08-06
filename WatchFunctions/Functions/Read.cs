@@ -18,17 +18,14 @@ namespace WatchFunctions.Functions
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req,
             ILogger log)
         {
-            log.LogInformation("C# HTTP trigger function processed a request.");
-
             var authHeader = req.Headers["Authorization"][0];
             if (!authHeader.StartsWith("Bearer "))
                 return new BadRequestObjectResult("Session not found");
-            var user = await Entities.GetUserBySessionAsync(authHeader.Substring(7));
+            var user = await Entities.GetUserBySessionAsync(authHeader[7..]);
             if (user == null)
                 return new BadRequestObjectResult("Bad session token");
             string channelNumber = req.Query["channelNumber"];
             var messages = await Entities.ReadMessages(channelNumber);
-            //var result = messages.ToList().Select(message => $"{message.Sender}: {message.Text} - {message.Timestamp}");
             return new OkObjectResult(messages);
         }
     }

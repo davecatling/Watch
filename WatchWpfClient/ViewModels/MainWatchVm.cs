@@ -27,6 +27,7 @@ namespace WatchWpfClient.ViewModels
         private string _newUserEmail;
         private string _loginHandle;
         private string _loginPassword;
+        private string _status;
         private ICommand? _toggleChannelInputCommand;
         private ICommand? _addChannelPartCommand;
         private ICommand? _newUserCommand;
@@ -101,6 +102,16 @@ namespace WatchWpfClient.ViewModels
             {
                 _loginPassword = value;
                 OnPropertyChanged(nameof(LoginPassword));
+            }
+        }
+
+        public string Status
+        {
+            get => _status;
+            set
+            {
+                _status = value;
+                OnPropertyChanged(nameof(Status));
             }
         }
 
@@ -185,12 +196,18 @@ namespace WatchWpfClient.ViewModels
 
         private async void Login()
         {
+            Status = "Please wait";
             var result = await _watchApp.Login(_loginHandle, _loginPassword);
+            LoginHandle = String.Empty;
+            LoginPassword = String.Empty;
             if (result)
             {
+                Status = String.Empty;
                 State = WatchVmState.Reading;
                 _watchApp.Read();
             }
+            else
+                Status = "Login failed";
         }
 
         private bool LoginOK()

@@ -6,7 +6,12 @@
              xmlns:local="clr-namespace:WatchWpfClient.Views.Controls"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800" DataContext="{StaticResource MainWatchVm}">
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height=".9*"/>
+            <RowDefinition Height=".1*" MinHeight="30"/>
+        </Grid.RowDefinitions>
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Row="0">
         <ItemsControl ItemsSource="{Binding Path=Messages}">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
@@ -14,9 +19,14 @@
                         <TextBlock Text="{Binding Path=Sender}" FontWeight="Bold" Margin="5,0,0,0"/>
                         <TextBlock Text="{Binding Path=Text}" Margin="10,0,0,0"/>
                         <TextBlock Text="{Binding Path=TimeStamp}" Margin="10,0,0,0" FontStyle="Italic"/>
-                    </StackPanel>
+                    </StackPanel>                    
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
     </ScrollViewer>
+    <StackPanel Orientation="Horizontal" Grid.Row="1">
+        <TextBox x:Name="messageTextbox" MinWidth="400" MaxWidth="1200" Margin="5,0,0,0" VerticalContentAlignment="Center"></TextBox>
+        <Button Margin="5,0,0,0" Padding="5" MaxHeight="40">Send</Button>
+    </StackPanel>
+    </Grid>
 </UserControl>

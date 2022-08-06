@@ -52,6 +52,7 @@ namespace WatchWpfClient.Model
         public async Task<bool> Login(string username, string password)
         {
             var session = await _functionProxy!.Login(username, password);
+            if (session == "Login failed.") return false;
             if (session != null && session != String.Empty)
             {
                 _sessionToken = session;
@@ -63,16 +64,10 @@ namespace WatchWpfClient.Model
         public async void Read()
         {
             var latestMessages = await _functionProxy!.Read(_channelNumber!);
-            Messages!.ForEach(msg =>
-            {
-                if (!latestMessages.Any(m => m.Id == msg.Id))
-                    RemoveMessage(msg);
-            });
-            latestMessages.ForEach(msg =>
-            {
-                if (!Messages.Any(m => m.Id == msg.Id))
-                    AddMessage(msg);
-            });
+            var deletedMessages = Messages!.Where(msg => !latestMessages.Any(lm => lm.Id == msg.Id)).ToList();
+            deletedMessages.ForEach(dm => RemoveMessage(dm));
+            var addedMessages = latestMessages.Where(lm => !Messages!.Any(msg => msg.Id == lm.Id)).ToList();
+            addedMessages.ForEach(am => AddMessage(am));
         }
 
         private void SyncTimer_Elapsed(object? sender, ElapsedEventArgs e)
