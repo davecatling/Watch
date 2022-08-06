@@ -6,14 +6,13 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using WatchFunctions.Model;
 
 namespace WatchFunctions.Functions
 {
-    public static class Write
+    public static class GrantAccess
     {
-        [FunctionName("Write")]
+        [FunctionName("GrantAccess")]
         public static async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequest req,
             ILogger log)
@@ -27,23 +26,23 @@ namespace WatchFunctions.Functions
                 if (user == null)
                     return new BadRequestObjectResult("Bad session token");
                 string channelNumber = req.Query["channelNumber"];
+                string handle = req.Query["handle"];
                 var hasAccess = await Entities.HasAccess(channelNumber, user.RowKey);
                 if (!hasAccess)
                     return new BadRequestObjectResult("Access denied");
-                string message = req.Query["message"];
-                var messageEntity = new MessageEntity()
+                var newAccess = new AccessEntity()
                 {
                     PartitionKey = channelNumber,
                     RowKey = Guid.NewGuid().ToString(),
-                    Text = message,
-                    Sender = user.RowKey
+                    Handle = handle,
+                    Grantor = user.RowKey
                 };
-                _ = await Entities.SaveEntityAsync("messages", messageEntity);
+                _ = await Entities.SaveEntityAsync("access", newAccess);
                 return new OkObjectResult("OK");
             }
             catch (Exception ex)
             {
-                return new BadRequestObjectResult($"Writing message failed: {ex.Message}");
+                return new BadRequestObjectResult($"Granting access failed: {ex.Message}");
             }
         }
     }

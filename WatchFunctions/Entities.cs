@@ -47,10 +47,32 @@ namespace WatchFunctions
             return result.Results;
         }
 
+        public static async Task<bool> HasAccess(string channelNumber, string handle)
+        {
+            var table = Table("access");
+            TableQuery<AccessEntity> accessQuery = new TableQuery<AccessEntity>().Where($"PartitionKey " +
+                $"eq '{channelNumber}'");
+            var result = await table.ExecuteQuerySegmentedAsync(accessQuery, null);
+            if (result.Results.Count == 0)
+            {
+                var accessEntity = new AccessEntity()
+                {
+                    PartitionKey = channelNumber,
+                    RowKey = Guid.NewGuid().ToString(),
+                    Handle = handle
+                };
+                _ = await SaveEntityAsync("access", accessEntity);
+            }
+            accessQuery = new TableQuery<AccessEntity>().Where($"PartitionKey " +
+                $"eq '{channelNumber}' and Handle eq '{handle}'");
+            result = await table.ExecuteQuerySegmentedAsync(accessQuery, null);
+            return result.Results.Count != 0;
+        }
+
         public static CloudTable Table(string tableName)
         {
-            var connString = Environment.GetEnvironmentVariable("WEBSITE_CONTENTAZUREFILECONNECTIONSTRING", EnvironmentVariableTarget.Process);
-            //var connString = @"AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;DefaultEndpointsProtocol=http;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;QueueEndpoint=http://127.0.0.1:10001/devstoreaccount1;TableEndpoint=http://127.0.0.1:10002/devstoreaccount1;";
+            //var connString = Environment.GetEnvironmentVariable("WEBSITE_CONTENTAZUREFILECONNECTIONSTRING", EnvironmentVariableTarget.Process);
+            var connString = @"AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;DefaultEndpointsProtocol=http;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;QueueEndpoint=http://127.0.0.1:10001/devstoreaccount1;TableEndpoint=http://127.0.0.1:10002/devstoreaccount1;";
             var storageAccount = CloudStorageAccount.Parse(connString);
             var tableClient = storageAccount.CreateCloudTableClient();
             return tableClient.GetTableReference(tableName);

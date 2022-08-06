@@ -25,6 +25,9 @@ namespace WatchFunctions.Functions
             if (user == null)
                 return new BadRequestObjectResult("Bad session token");
             string channelNumber = req.Query["channelNumber"];
+            var hasAccess = await Entities.HasAccess(channelNumber, user.RowKey);
+            if (!hasAccess)
+                return new BadRequestObjectResult("Access denied");
             var messages = await Entities.ReadMessages(channelNumber);
             return new OkObjectResult(messages);
         }

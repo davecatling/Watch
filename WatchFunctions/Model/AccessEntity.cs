@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 
 namespace WatchFunctions.Model
 {
-    public class MessageEntity : TableEntity
+    public class AccessEntity : TableEntity
     {
-        public string Sender { get; set; }
-        public string Text { get; set; }
-        public MessageEntity() { }        
+        public string Handle { get; set; }
+        public string Grantor { get; set; }
+        public AccessEntity() { }
     }
 }
