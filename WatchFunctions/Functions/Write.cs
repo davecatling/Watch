@@ -36,7 +36,7 @@ namespace WatchFunctions.Functions
                     Sender = user.RowKey
                 };
                 _ = await Entities.SaveEntityAsync("messages", messageEntity);
-                return new OkObjectResult("Message saved");
+                return new OkObjectResult("OK");
             }
             catch (Exception ex)
             {

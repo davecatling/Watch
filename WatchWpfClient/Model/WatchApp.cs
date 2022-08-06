@@ -70,6 +70,11 @@ namespace WatchWpfClient.Model
             addedMessages.ForEach(am => AddMessage(am));
         }
 
+        public async Task<string> Write(string message)
+        {
+            return await _functionProxy!.Write(_channelNumber!, message);
+        }
+
         private void SyncTimer_Elapsed(object? sender, ElapsedEventArgs e)
         {
             AddNewSync();

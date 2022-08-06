@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -35,11 +36,24 @@ namespace WatchWpfClient.Model
 
         public async Task<string> Login(string handle, string password)
         {
-            var url = $"{_config!.URL}Login?code={_config.LoginCode}&handle={handle}&password={password}";
+            var url = $"{_config!.URL}Login?code={_config.LoginCode}&handle={WebUtility.UrlEncode(handle)}&password={WebUtility.UrlEncode(password)}";
             var client = new HttpClient();
             var response = await client.GetAsync(url);
             var result = await response.Content.ReadAsStringAsync();
             _sessionToken = result;
+            return result;
+        }
+
+        public async Task<string> Write(string channelNumber, string message)
+        {
+            if (_sessionToken == null || _sessionToken == string.Empty)
+                throw new InvalidOperationException("No current session");
+            var url = $"{_config!.URL}Write?code={_config.WriteCode}&channelNumber={channelNumber}&message={WebUtility.UrlEncode(message)}";
+            var client = new HttpClient();
+            client.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _sessionToken);
+            var response = await client.PostAsync(url, null);
+            var result = await response.Content.ReadAsStringAsync();
             return result;
         }
 
@@ -54,7 +68,8 @@ namespace WatchWpfClient.Model
             var response = await client.GetAsync(url);
             var result = await response.Content.ReadAsStringAsync();
             var dtos = JsonConvert.DeserializeObject<List<MessageDto>>(result);
-            return dtos.Select(dto => new Message(dto)).ToList();
+            var messages = dtos.Select(dto => new Message(dto)).ToList();
+            return messages.OrderBy(m => m.TimeStamp).ToList();
         }
 
         private void GetConfig(string path)

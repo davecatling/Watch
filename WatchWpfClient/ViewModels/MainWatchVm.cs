@@ -27,11 +27,13 @@ namespace WatchWpfClient.ViewModels
         private string _newUserEmail;
         private string _loginHandle;
         private string _loginPassword;
+        private string _newMessage;
         private string _status;
         private ICommand? _toggleChannelInputCommand;
         private ICommand? _addChannelPartCommand;
         private ICommand? _newUserCommand;
         private ICommand? _loginCommand;
+        private ICommand? _writeCommand;
 
         public ObservableCollection<TimeSync>? TimeSyncs
         {
@@ -105,6 +107,16 @@ namespace WatchWpfClient.ViewModels
             }
         }
 
+        public string NewMessage
+        {
+            get => _newMessage;
+            set
+            {
+                _newMessage = value;
+                OnPropertyChanged(nameof(NewMessage));
+            }
+        }
+
         public string Status
         {
             get => _status;
@@ -134,6 +146,7 @@ namespace WatchWpfClient.ViewModels
             State = WatchVmState.Normal;
             _timeSyncLock = new object();
             _messageLock = new object();
+            _newMessage = string.Empty;
             TimeSyncs = new ObservableCollection<TimeSync>();
             Messages = new ObservableCollection<Message>();
             BindingOperations.EnableCollectionSynchronization(TimeSyncs, _timeSyncLock);
@@ -180,6 +193,16 @@ namespace WatchWpfClient.ViewModels
             }
         }
 
+        public ICommand WriteCommand
+        {
+            get
+            {
+                if (_writeCommand == null)
+                    _writeCommand = new RelayCommand((exec) => Write(), (canExec) => WriteOK());
+                return _writeCommand;
+            }
+        }
+
         private bool NewUserOK()
         {
             if (_newUserHandle.Length >= 8 && _newUserPassword.Length >= 12)
@@ -208,6 +231,25 @@ namespace WatchWpfClient.ViewModels
             }
             else
                 Status = "Login failed";
+        }
+                
+        private bool WriteOK()
+        {
+            return _newMessage.Length > 0;
+        }
+
+        private async void Write()
+        {
+            Status = "Please wait";
+            var result = await _watchApp.Write(NewMessage);
+            if (result == "OK")
+            {
+                NewMessage = string.Empty;
+                Status = string.Empty;
+                _watchApp.Read();
+            }
+            else
+                Status = result;            
         }
 
         private bool LoginOK()
