@@ -57,6 +57,19 @@ namespace WatchWpfClient.Model
             return result;
         }
 
+        public async Task<string> GrantAccess(string channelNumber, string handle)
+        {
+            if (_sessionToken == null || _sessionToken == string.Empty)
+                throw new InvalidOperationException("No current session");
+            var url = $"{_config!.URL}GrantAccess?code={_config.GrantAccessCode}&channelNumber={channelNumber}&handle={WebUtility.UrlEncode(handle)}";
+            var client = new HttpClient();
+            client.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _sessionToken);
+            var response = await client.PostAsync(url, null);
+            var result = await response.Content.ReadAsStringAsync();
+            return result;
+        }
+
         public async Task<List<Message>> Read(string channelNumber)
         {
             if (_sessionToken == null || _sessionToken == string.Empty)
@@ -67,6 +80,8 @@ namespace WatchWpfClient.Model
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _sessionToken);
             var response = await client.GetAsync(url);
             var result = await response.Content.ReadAsStringAsync();
+            if (result == "Access denied")
+                throw new InvalidOperationException("Access denied");
             var dtos = JsonConvert.DeserializeObject<List<MessageDto>>(result);
             var messages = dtos.Select(dto => new Message(dto)).ToList();
             return messages.OrderBy(m => m.TimeStamp).ToList();

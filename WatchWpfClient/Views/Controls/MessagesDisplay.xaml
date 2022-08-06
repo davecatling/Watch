@@ -28,6 +28,13 @@
             <TextBox x:Name="messageTextbox" MinWidth="400" MaxWidth="1200" MaxHeight="30" Margin="5,0,0,0" VerticalContentAlignment="Center"
                  Text="{Binding Path=NewMessage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></TextBox>
             <Button Margin="5,0,0,0" Padding="5" MaxHeight="30" Command="{Binding Path=WriteCommand}">Send</Button>
+            <DockPanel>
+                <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                    <TextBox x:Name="grantAccessTextbox" MinWidth="200" MaxWidth="600" MaxHeight="30" Margin="25,0,0,0" VerticalContentAlignment="Center"
+                 Text="{Binding Path=GrantAccessHandle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                    <Button Margin="5,0,0,0" Padding="5" MaxHeight="30" Command="{Binding Path=GrantAccessCommand}">Invite</Button>
+                </StackPanel>
+            </DockPanel>
         </StackPanel>
     </Grid>
 </UserControl>

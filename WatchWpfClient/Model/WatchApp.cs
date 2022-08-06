@@ -25,7 +25,6 @@ namespace WatchWpfClient.Model
         private readonly Timer _syncTimer;
         private bool _channelInputMode;
         private string? _channelNumber;
-        private string? _sessionToken;
         private FunctionProxy? _functionProxy;
 
         public WatchApp()
@@ -53,12 +52,7 @@ namespace WatchWpfClient.Model
         {
             var session = await _functionProxy!.Login(username, password);
             if (session == "Login failed.") return false;
-            if (session != null && session != String.Empty)
-            {
-                _sessionToken = session;
-                return true;
-            }
-            return false;
+            return true;
         }
 
         public async Task Read()
@@ -73,6 +67,11 @@ namespace WatchWpfClient.Model
         public async Task<string> Write(string message)
         {
             return await _functionProxy!.Write(_channelNumber!, message);
+        }
+
+        public async Task<string> GrantAccess(string handle)
+        {
+            return await _functionProxy!.GrantAccess(_channelNumber!, handle);
         }
 
         private void SyncTimer_Elapsed(object? sender, ElapsedEventArgs e)

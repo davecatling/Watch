@@ -38,6 +38,14 @@ namespace WatchFunctions.Functions
                     Grantor = user.RowKey
                 };
                 _ = await Entities.SaveEntityAsync("access", newAccess);
+                var newMessage = new MessageEntity()
+                {
+                    PartitionKey = channelNumber,
+                    RowKey = Guid.NewGuid().ToString(),
+                    Sender = "SYSTEM",
+                    Text = $"{user.RowKey} granted access to {handle}"
+                };
+                _ = await Entities.SaveEntityAsync("messages", newMessage);
                 return new OkObjectResult("OK");
             }
             catch (Exception ex)

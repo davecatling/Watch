@@ -13,5 +13,6 @@ namespace WatchWpfClient.Model
         public string NewUserCode { get; set; }
         public string ReadCode { get; set; }
         public string WriteCode { get; set; }
+        public string GrantAccessCode { get; set; }
     }
 }

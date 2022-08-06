@@ -24,10 +24,11 @@ namespace WatchFunctions.Functions
             {
                 string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
                 var newUser = JsonConvert.DeserializeObject<Dtos.NewUserDto>(requestBody);
-
+                if (newUser.Handle == "SYSTEM")
+                    return new BadRequestObjectResult("Reserved handle");
                 var existingUser = await Entities.GetEntityAsync<UserEntity>("users", "user", newUser.Handle);
                 if (existingUser != null)
-                    return new BadRequestObjectResult("Handle already in use.");
+                    return new BadRequestObjectResult("Handle already in use");
 
                 var newEntity = new UserEntity()
                 {
@@ -43,7 +44,7 @@ namespace WatchFunctions.Functions
             }
             catch (Exception)
             {
-                return new BadRequestObjectResult("Adding user failed.");
+                return new BadRequestObjectResult("Adding user failed");
             }
         }
     }

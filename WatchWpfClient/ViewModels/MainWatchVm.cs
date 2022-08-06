@@ -29,6 +29,7 @@ namespace WatchWpfClient.ViewModels
         private string _loginHandle;
         private string _loginPassword;
         private string _newMessage;
+        private string _grantAccessHandle;
         private string _status;
         private Timer _readTimer;
         private ICommand? _toggleChannelInputCommand;
@@ -37,6 +38,7 @@ namespace WatchWpfClient.ViewModels
         private ICommand? _showNewUserCommand;
         private ICommand? _loginCommand;
         private ICommand? _writeCommand;
+        private ICommand? _grantAccessCommand;
         private ICommand? _backCommand;
         private ICommand? _quitCommand;
 
@@ -122,6 +124,16 @@ namespace WatchWpfClient.ViewModels
             }
         }
 
+        public string GrantAccessHandle
+        {
+            get => _grantAccessHandle;
+            set
+            {
+                _grantAccessHandle = value;
+                OnPropertyChanged(nameof(_grantAccessHandle));
+            }
+        }
+
         public string Status
         {
             get => _status;
@@ -159,9 +171,10 @@ namespace WatchWpfClient.ViewModels
             _timeSyncLock = new object();
             _messageLock = new object();
             _newMessage = string.Empty;
-            _newUserHandle = String.Empty;
-            _newUserPassword = String.Empty;
-            _newUserEmail = String.Empty;
+            _newUserHandle = string.Empty;
+            _newUserPassword = string.Empty;
+            _newUserEmail = string.Empty;
+            _grantAccessHandle = string.Empty;
             _readTimer = new Timer()
             {
                 Interval = 15000
@@ -238,6 +251,16 @@ namespace WatchWpfClient.ViewModels
             }
         }
 
+        public ICommand GrantAccessCommand
+        {
+            get
+            {
+                if (_grantAccessCommand == null)
+                    _grantAccessCommand = new RelayCommand((exec) => GrantAccess(), (canExec) => GrantAccessOK());
+                return _grantAccessCommand;
+            }
+        }
+
         public ICommand BackCommand
         {
             get
@@ -299,14 +322,27 @@ namespace WatchWpfClient.ViewModels
 
         private async void Read()
         {
-            Status = "Please wait...";
-            await _watchApp.Read();
-            Status = String.Empty;
+            try
+            {
+                Status = "Please wait...";
+                await _watchApp.Read();
+                Status = String.Empty;
+            }
+            catch (Exception ex)
+            {
+                Status = ex.Message;
+                State = WatchVmState.LogIn;
+            }
         }
                 
         private bool WriteOK()
         {
             return _newMessage.Length > 0;
+        }
+
+        private bool GrantAccessOK()
+        {
+            return _grantAccessHandle.Length > 0;
         }
 
         private async void Write()
@@ -317,10 +353,24 @@ namespace WatchWpfClient.ViewModels
             {
                 NewMessage = string.Empty;
                 Status = string.Empty;
-                _watchApp.Read();
+                Read();
             }
             else
                 Status = result;            
+        }
+
+        private async void GrantAccess()
+        {
+            Status = "Please wait...";
+            var result = await _watchApp.GrantAccess(GrantAccessHandle);
+            if (result == "OK")
+            {
+                GrantAccessHandle = string.Empty;
+                Status = string.Empty;
+                Read();
+            }
+            else
+                Status = result;
         }
 
         public void Quit()
