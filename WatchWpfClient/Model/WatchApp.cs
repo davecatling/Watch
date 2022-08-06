@@ -61,7 +61,7 @@ namespace WatchWpfClient.Model
             return false;
         }
 
-        public async void Read()
+        public async Task Read()
         {
             var latestMessages = await _functionProxy!.Read(_channelNumber!);
             var deletedMessages = Messages!.Where(msg => !latestMessages.Any(lm => lm.Id == msg.Id)).ToList();
@@ -124,12 +124,13 @@ namespace WatchWpfClient.Model
 
         public void AddChannelPart(string channelPart)
         {
-            if (!_channelInputMode)
-                throw new InvalidOperationException("Channel input inactive");
-            if (_channelNumber == null)
-                _channelNumber = channelPart;
-            else
-                _channelNumber += channelPart;
+            if (_channelInputMode)
+            {
+                if (_channelNumber == null)
+                    _channelNumber = channelPart;
+                else
+                    _channelNumber += channelPart;
+            }
         }
 
         public class ItemAddedOrRemovedEventArgs : EventArgs

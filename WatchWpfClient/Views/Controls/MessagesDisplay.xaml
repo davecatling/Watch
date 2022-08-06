@@ -25,9 +25,9 @@
             </ItemsControl>
         </ScrollViewer>
         <StackPanel Orientation="Horizontal" Grid.Row="1">
-            <TextBox x:Name="messageTextbox" MinWidth="400" MaxWidth="1200" Margin="5,0,0,0" VerticalContentAlignment="Center"
+            <TextBox x:Name="messageTextbox" MinWidth="400" MaxWidth="1200" MaxHeight="30" Margin="5,0,0,0" VerticalContentAlignment="Center"
                  Text="{Binding Path=NewMessage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></TextBox>
-            <Button Margin="5,0,0,0" Padding="5" MaxHeight="40" Command="{Binding Path=WriteCommand}">Send</Button>
+            <Button Margin="5,0,0,0" Padding="5" MaxHeight="30" Command="{Binding Path=WriteCommand}">Send</Button>
         </StackPanel>
     </Grid>
 </UserControl>

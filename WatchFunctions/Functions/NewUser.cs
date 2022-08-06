@@ -22,8 +22,6 @@ namespace WatchFunctions.Functions
         {
             try
             {
-                log.LogInformation("NewUser function processed a request.");
-
                 string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
                 var newUser = JsonConvert.DeserializeObject<Dtos.NewUserDto>(requestBody);
 
@@ -31,7 +29,7 @@ namespace WatchFunctions.Functions
                 if (existingUser != null)
                     return new BadRequestObjectResult("Handle already in use.");
 
-                var newEntity = new Model.UserEntity()
+                var newEntity = new UserEntity()
                 {
                     PartitionKey = "user",
                     RowKey = newUser.Handle,

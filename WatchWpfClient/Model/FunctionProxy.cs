@@ -31,7 +31,7 @@ namespace WatchWpfClient.Model
             var client = new HttpClient();
             var response = await client.PostAsJsonAsync(url, newUserDto);
             var result = await response.Content.ReadAsStringAsync();
-            return result.StartsWith($"Welcome {newUserDto.Handle}");
+            return result.StartsWith($"Hello, {newUserDto.Handle}");
         }
 
         public async Task<string> Login(string handle, string password)

@@ -13,6 +13,8 @@
         <converters:StateToTimeSyncVis x:Key="StateToTimeSyncVis"/>
         <converters:StateToLogInVis x:Key="StateToLogInVis"/>
         <converters:StateToMsgVis x:Key="StateToMsgVis"/>
+        <converters:StateToNewUserVis x:Key="StateToNewUserVis"/>
+        <converters:StateToBackButtonVis x:Key="StateToBackButtonVis"/>
         <Storyboard x:Key="SecsAfterFinishSb">
             <DoubleAnimation
                 Storyboard.TargetName="Second"
@@ -45,7 +47,7 @@
             <RowDefinition Height=".75*"/>
             <RowDefinition Height="5"/>
             <RowDefinition Height=".25*"/>
-            <RowDefinition Height="40"/>
+            <RowDefinition Height="50"/>
         </Grid.RowDefinitions>
         <Grid Grid.Row="0" Height="425" Width="400">
             <Grid.Background>
@@ -151,12 +153,15 @@
             <controls:TimeSyncDisplay Visibility="{Binding Path=State, Converter={StaticResource StateToTimeSyncVis}}"></controls:TimeSyncDisplay>
             <controls:LogIn  Visibility="{Binding Path=State, Converter={StaticResource StateToLogInVis}}"></controls:LogIn>
             <controls:MessagesDisplay Visibility="{Binding Path=State, Converter={StaticResource StateToMsgVis}}"></controls:MessagesDisplay>
+            <controls:NewUser Visibility="{Binding Path=State, Converter={StaticResource StateToNewUserVis}}"></controls:NewUser>
         </Grid>
         <StackPanel Orientation="Vertical" Grid.Row="3">
             <Separator/>
             <DockPanel>
                 <TextBlock DockPanel.Dock="Left" Text="{Binding Path=Status}" HorizontalAlignment="Stretch" MinWidth="200" Margin="5,0,0,0" VerticalAlignment="Center" />
-                <Button Width="50" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="5" DockPanel.Dock="Right">Close</Button>
+                <Button Width="50" Height="30" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="5" DockPanel.Dock="Right" Command="{Binding Path=QuitCommand}">Close</Button>
+                <Button Width="50" Height="30" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="5" DockPanel.Dock="Right" Command="{Binding BackCommand}"
+                        Visibility="{Binding Path=State, Converter={StaticResource StateToBackButtonVis}}">Back</Button>
             </DockPanel>
         </StackPanel>
     </Grid>

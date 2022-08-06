@@ -30,6 +30,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Views\Controls\NewUser.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Views\Controls\LogIn.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -39,6 +42,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Page Update="Views\Controls\NewUser.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Update="Views\Controls\LogIn.xaml">
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
       <SubType>Designer</SubType>

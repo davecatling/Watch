@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Timers;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
@@ -29,11 +30,15 @@ namespace WatchWpfClient.ViewModels
         private string _loginPassword;
         private string _newMessage;
         private string _status;
+        private Timer _readTimer;
         private ICommand? _toggleChannelInputCommand;
         private ICommand? _addChannelPartCommand;
         private ICommand? _newUserCommand;
+        private ICommand? _showNewUserCommand;
         private ICommand? _loginCommand;
         private ICommand? _writeCommand;
+        private ICommand? _backCommand;
+        private ICommand? _quitCommand;
 
         public ObservableCollection<TimeSync>? TimeSyncs
         {
@@ -134,6 +139,13 @@ namespace WatchWpfClient.ViewModels
             set
             {
                 _state = value;
+                if (_readTimer != null)
+                {
+                    if (_state == WatchVmState.Reading)
+                        _readTimer.Start();
+                    else
+                        _readTimer.Stop();
+                }
                 OnPropertyChanged(nameof(State));
             }
         }
@@ -147,10 +159,23 @@ namespace WatchWpfClient.ViewModels
             _timeSyncLock = new object();
             _messageLock = new object();
             _newMessage = string.Empty;
+            _newUserHandle = String.Empty;
+            _newUserPassword = String.Empty;
+            _newUserEmail = String.Empty;
+            _readTimer = new Timer()
+            {
+                Interval = 15000
+            };
+            _readTimer.Elapsed += ReadTimer_Elapsed;
             TimeSyncs = new ObservableCollection<TimeSync>();
             Messages = new ObservableCollection<Message>();
             BindingOperations.EnableCollectionSynchronization(TimeSyncs, _timeSyncLock);
             BindingOperations.EnableCollectionSynchronization(Messages, _messageLock);
+        }
+
+        private void ReadTimer_Elapsed(object? sender, ElapsedEventArgs e)
+        {
+            Read();
         }
 
         public ICommand ToggleChannelInputCommand
@@ -183,6 +208,16 @@ namespace WatchWpfClient.ViewModels
             }
         }
 
+        public ICommand ShowNewUserCommand
+        {
+            get
+            {
+                if (_showNewUserCommand == null)
+                    _showNewUserCommand = new RelayCommand((exec) => ShowNewUser());
+                return _showNewUserCommand;
+            }
+        }
+
         public ICommand LoginCommand
         {
             get
@@ -203,34 +238,70 @@ namespace WatchWpfClient.ViewModels
             }
         }
 
+        public ICommand BackCommand
+        {
+            get
+            {
+                if (_backCommand == null)
+                    _backCommand = new RelayCommand((exec) => Back());
+                return _backCommand;
+            }
+        }
+
+        public ICommand QuitCommand
+        {
+            get
+            {
+                if (_quitCommand == null)
+                    _quitCommand = new RelayCommand((exec) => Quit());
+                return _quitCommand;
+            }
+        }
+
         private bool NewUserOK()
         {
-            if (_newUserHandle.Length >= 8 && _newUserPassword.Length >= 12)
+            if (_newUserHandle.Length >= 8 && _newUserPassword.Length >= 8)
                 return true;
             return false;
         }
 
         private async void NewUser()
         {
+            Status = "Please wait...";
             var result = await _watchApp.NewUser(_newUserHandle, _newUserEmail, _newUserPassword);
             if (result)
+            {
                 MessageBox.Show($"New user {_newUserHandle} created");
+                State = WatchVmState.LogIn;
+            }
+            Status = String.Empty;
+        }
+
+        private void ShowNewUser()
+        {
+            State = WatchVmState.NewUser;
         }
 
         private async void Login()
         {
-            Status = "Please wait";
+            Status = "Please wait...";
             var result = await _watchApp.Login(_loginHandle, _loginPassword);
             LoginHandle = String.Empty;
             LoginPassword = String.Empty;
             if (result)
             {
-                Status = String.Empty;
                 State = WatchVmState.Reading;
-                _watchApp.Read();
+                Read();
             }
             else
                 Status = "Login failed";
+        }
+
+        private async void Read()
+        {
+            Status = "Please wait...";
+            await _watchApp.Read();
+            Status = String.Empty;
         }
                 
         private bool WriteOK()
@@ -240,7 +311,7 @@ namespace WatchWpfClient.ViewModels
 
         private async void Write()
         {
-            Status = "Please wait";
+            Status = "Please wait...";
             var result = await _watchApp.Write(NewMessage);
             if (result == "OK")
             {
@@ -250,6 +321,17 @@ namespace WatchWpfClient.ViewModels
             }
             else
                 Status = result;            
+        }
+
+        public void Quit()
+        {
+            Application.Current.Shutdown();
+        }
+
+        private void Back()
+        {
+            Status = String.Empty;
+            State = WatchVmState.Normal;
         }
 
         private bool LoginOK()
@@ -313,6 +395,7 @@ namespace WatchWpfClient.ViewModels
     {
         Normal,
         LogIn,
-        Reading
+        Reading,
+        NewUser
     }
 }
