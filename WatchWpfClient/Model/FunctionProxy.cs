@@ -6,9 +6,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Net;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
-using WatchFunctions.Dtos;
 using WatchWpfClient.Model.Dtos;
 
 namespace WatchWpfClient.Model
@@ -31,17 +29,23 @@ namespace WatchWpfClient.Model
             var client = new HttpClient();
             var response = await client.PostAsJsonAsync(url, newUserDto);
             var result = await response.Content.ReadAsStringAsync();
-            return result.StartsWith($"Hello, {newUserDto.Handle}");
+            if (response.IsSuccessStatusCode)
+                return true;
+            throw new InvalidOperationException(result);
         }
 
-        public async Task<string> Login(string handle, string password)
+        public async Task<bool> Login(string handle, string password)
         {
             var url = $"{_config!.URL}Login?code={_config.LoginCode}&handle={WebUtility.UrlEncode(handle)}&password={WebUtility.UrlEncode(password)}";
             var client = new HttpClient();
             var response = await client.GetAsync(url);
             var result = await response.Content.ReadAsStringAsync();
-            _sessionToken = result;
-            return result;
+            if (response.IsSuccessStatusCode)
+            {                
+                _sessionToken = result;
+                return true;
+            }
+            throw new InvalidOperationException(result);
         }
 
         public async Task<string> Write(string channelNumber, string message)
@@ -54,7 +58,9 @@ namespace WatchWpfClient.Model
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _sessionToken);
             var response = await client.PostAsync(url, null);
             var result = await response.Content.ReadAsStringAsync();
-            return result;
+            if (response.IsSuccessStatusCode)
+                return result;
+            throw new InvalidOperationException(result);
         }
 
         public async Task<string> GrantAccess(string channelNumber, string handle)
@@ -67,7 +73,9 @@ namespace WatchWpfClient.Model
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _sessionToken);
             var response = await client.PostAsync(url, null);
             var result = await response.Content.ReadAsStringAsync();
-            return result;
+            if (response.IsSuccessStatusCode)
+                return result;
+            throw new InvalidOperationException(result);
         }
 
         public async Task<List<Message>> Read(string channelNumber)
@@ -80,8 +88,8 @@ namespace WatchWpfClient.Model
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _sessionToken);
             var response = await client.GetAsync(url);
             var result = await response.Content.ReadAsStringAsync();
-            if (result == "Access denied")
-                throw new InvalidOperationException("Access denied");
+            if (!response.IsSuccessStatusCode)
+                throw new InvalidOperationException(result);
             var dtos = JsonConvert.DeserializeObject<List<MessageDto>>(result);
             var messages = dtos.Select(dto => new Message(dto)).ToList();
             return messages.OrderBy(m => m.TimeStamp).ToList();

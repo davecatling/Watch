@@ -7,8 +7,6 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Table;
 using WatchFunctions.Model;
 
 namespace WatchFunctions.Functions
@@ -25,11 +23,10 @@ namespace WatchFunctions.Functions
                 string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
                 var newUser = JsonConvert.DeserializeObject<Dtos.NewUserDto>(requestBody);
                 if (newUser.Handle == "SYSTEM")
-                    return new BadRequestObjectResult("Reserved handle");
+                    throw new ArgumentException("Reserved handle");
                 var existingUser = await Entities.GetEntityAsync<UserEntity>("users", "user", newUser.Handle);
                 if (existingUser != null)
-                    return new BadRequestObjectResult("Handle already in use");
-
+                    throw new ArgumentException("Handle in use");
                 var newEntity = new UserEntity()
                 {
                     PartitionKey = "user",
@@ -42,9 +39,9 @@ namespace WatchFunctions.Functions
                 string responseMessage = $"Hello, {newUser.Handle}. Your details have been added.";
                 return new OkObjectResult(responseMessage);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return new BadRequestObjectResult("Adding user failed");
+                return new BadRequestObjectResult($"User creation failed: {ex.Message}");
             }
         }
     }

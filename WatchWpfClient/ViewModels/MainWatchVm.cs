@@ -1,15 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
-using System.Windows.Threading;
 using WatchWpfClient.Model;
 
 namespace WatchWpfClient.ViewModels
@@ -130,7 +126,7 @@ namespace WatchWpfClient.ViewModels
             set
             {
                 _grantAccessHandle = value;
-                OnPropertyChanged(nameof(_grantAccessHandle));
+                OnPropertyChanged(nameof(GrantAccessHandle));
             }
         }
 
@@ -151,6 +147,7 @@ namespace WatchWpfClient.ViewModels
             set
             {
                 _state = value;
+                ClearValues();
                 if (_readTimer != null)
                 {
                     if (_state == WatchVmState.Reading)
@@ -166,15 +163,9 @@ namespace WatchWpfClient.ViewModels
         {
             _clock = new Clock();
             _watchApp = new WatchApp();
-            _watchApp.ItemAddedOrRemoved += WatchApp_ItemAddedOrRemoved;
-            State = WatchVmState.Normal;
+            _watchApp.ItemAddedOrRemoved += WatchApp_ItemAddedOrRemoved;            
             _timeSyncLock = new object();
-            _messageLock = new object();
-            _newMessage = string.Empty;
-            _newUserHandle = string.Empty;
-            _newUserPassword = string.Empty;
-            _newUserEmail = string.Empty;
-            _grantAccessHandle = string.Empty;
+            _messageLock = new object();            
             _readTimer = new Timer()
             {
                 Interval = 15000
@@ -182,8 +173,20 @@ namespace WatchWpfClient.ViewModels
             _readTimer.Elapsed += ReadTimer_Elapsed;
             TimeSyncs = new ObservableCollection<TimeSync>();
             Messages = new ObservableCollection<Message>();
+            State = WatchVmState.Normal;
             BindingOperations.EnableCollectionSynchronization(TimeSyncs, _timeSyncLock);
             BindingOperations.EnableCollectionSynchronization(Messages, _messageLock);
+        }
+
+        private void ClearValues()
+        {
+            NewUserHandle = String.Empty;
+            NewUserPassword = String.Empty;
+            NewUserEmail = String.Empty;
+            LoginHandle = String.Empty;
+            LoginPassword = String.Empty;
+            NewMessage = String.Empty;
+            GrantAccessHandle = String.Empty;
         }
 
         private void ReadTimer_Elapsed(object? sender, ElapsedEventArgs e)
@@ -291,13 +294,21 @@ namespace WatchWpfClient.ViewModels
         private async void NewUser()
         {
             Status = "Please wait...";
-            var result = await _watchApp.NewUser(_newUserHandle, _newUserEmail, _newUserPassword);
-            if (result)
-            {
-                MessageBox.Show($"New user {_newUserHandle} created");
-                State = WatchVmState.LogIn;
+            try
+            {                
+                var result = await _watchApp.NewUser(_newUserHandle, _newUserEmail, _newUserPassword);
+                if (result)
+                {
+                    Status = $"New user {_newUserHandle} created";
+                    State = WatchVmState.LogIn;
+                }
+                else
+                    Status = "New user creation failed";
             }
-            Status = String.Empty;
+            catch (Exception ex)
+            {
+                Status = ex.Message;
+            }
         }
 
         private void ShowNewUser()
@@ -308,30 +319,39 @@ namespace WatchWpfClient.ViewModels
         private async void Login()
         {
             Status = "Please wait...";
-            var result = await _watchApp.Login(_loginHandle, _loginPassword);
-            LoginHandle = String.Empty;
-            LoginPassword = String.Empty;
-            if (result)
-            {
-                State = WatchVmState.Reading;
-                Read();
-            }
-            else
-                Status = "Login failed";
-        }
-
-        private async void Read()
-        {
             try
             {
-                Status = "Please wait...";
-                await _watchApp.Read();
-                Status = String.Empty;
+                var result = await _watchApp.Login(_loginHandle, _loginPassword);
+                if (result)
+                {
+                    var readSuccess = await Read();
+                    if (readSuccess)
+                        State = WatchVmState.Reading;
+                }
+                else
+                    Status = "Login failed";
+            }
+            catch (Exception ex)
+            {
+                Status = ex.Message;
+            }
+        }
+
+        private async Task<bool> Read()
+        {
+            Status = "Please wait...";
+            try
+            {                
+                var result = await _watchApp.Read();
+                if (result)
+                    Status = String.Empty;
+                return result;
             }
             catch (Exception ex)
             {
                 Status = ex.Message;
                 State = WatchVmState.LogIn;
+                return false;
             }
         }
                 
@@ -348,29 +368,43 @@ namespace WatchWpfClient.ViewModels
         private async void Write()
         {
             Status = "Please wait...";
-            var result = await _watchApp.Write(NewMessage);
-            if (result == "OK")
+            try
             {
-                NewMessage = string.Empty;
-                Status = string.Empty;
-                Read();
+                var result = await _watchApp.Write(NewMessage);
+                if (result == "OK")
+                {
+                    NewMessage = string.Empty;
+                    Status = string.Empty;
+                    await Read();
+                }
+                else
+                    Status = result;
             }
-            else
-                Status = result;            
+            catch (Exception ex)
+            {
+                Status = ex.Message;
+            }
         }
 
         private async void GrantAccess()
         {
             Status = "Please wait...";
-            var result = await _watchApp.GrantAccess(GrantAccessHandle);
-            if (result == "OK")
-            {
-                GrantAccessHandle = string.Empty;
-                Status = string.Empty;
-                Read();
+            try
+            {               
+                var result = await _watchApp.GrantAccess(GrantAccessHandle);
+                if (result == "OK")
+                {
+                    GrantAccessHandle = string.Empty;
+                    Status = string.Empty;
+                    await Read();
+                }
+                else
+                    Status = result;
             }
-            else
-                Status = result;
+            catch (Exception ex)
+            {
+                Status = ex.Message;
+            }
         }
 
         public void Quit()

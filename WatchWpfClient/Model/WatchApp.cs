@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
-using WatchFunctions.Dtos;
-using WatchWpfClient.Model.Dtos;
 
 namespace WatchWpfClient.Model
 {
@@ -50,18 +47,18 @@ namespace WatchWpfClient.Model
 
         public async Task<bool> Login(string username, string password)
         {
-            var session = await _functionProxy!.Login(username, password);
-            if (session == "Login failed.") return false;
-            return true;
+            var result = await _functionProxy!.Login(username, password);
+            return result;
         }
 
-        public async Task Read()
+        public async Task<bool> Read()
         {
             var latestMessages = await _functionProxy!.Read(_channelNumber!);
             var deletedMessages = Messages!.Where(msg => !latestMessages.Any(lm => lm.Id == msg.Id)).ToList();
             deletedMessages.ForEach(dm => RemoveMessage(dm));
             var addedMessages = latestMessages.Where(lm => !Messages!.Any(msg => msg.Id == lm.Id)).ToList();
             addedMessages.ForEach(am => AddMessage(am));
+            return true;
         }
 
         public async Task<string> Write(string message)

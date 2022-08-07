@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -24,12 +23,14 @@ namespace WatchFunctions.Functions
                     return new BadRequestObjectResult("Session not found");
                 var user = await Entities.GetUserBySessionAsync(authHeader[7..]);
                 if (user == null)
-                    return new BadRequestObjectResult("Bad session token");
+                    throw new ArgumentException("Bad session token");
                 string channelNumber = req.Query["channelNumber"];
                 string handle = req.Query["handle"];
+                if (user.RowKey == handle)
+                    throw new InvalidOperationException("Invalid grant request");
                 var hasAccess = await Entities.HasAccess(channelNumber, user.RowKey);
                 if (!hasAccess)
-                    return new BadRequestObjectResult("Access denied");
+                    throw new InvalidOperationException("Access denied");
                 var newAccess = new AccessEntity()
                 {
                     PartitionKey = channelNumber,

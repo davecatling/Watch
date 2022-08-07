@@ -1,12 +1,10 @@
 using System;
-using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using WatchFunctions.Model;
 using System.Linq;
 
@@ -19,24 +17,25 @@ namespace WatchFunctions.Functions
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req,
             ILogger log)
         {
-            log.LogInformation("C# HTTP trigger function processed a request.");
-
-            string handle = req.Query["handle"];
-            string password = req.Query["password"];
-
-            if (handle == null || password == null)
-                return new BadRequestObjectResult("Handle and password required.");
-
-            var user = await Entities.GetEntityAsync<UserEntity>("users", "user", handle);
-            if (user == null) return new BadRequestObjectResult("Login failed.");
-            var hashedPassword = HashAndSalt.GetHash(password, user.Salt);
-            if (!hashedPassword.SequenceEqual(user.Password)) return new BadRequestObjectResult("Login failed.");
-            user.LastAccess = DateTime.Now.ToString();
-            user.SessionToken = Guid.NewGuid().ToString();
-
-            await Entities.UpdateEntityAsync("users", user);
-
-            return new OkObjectResult(user.SessionToken);
+            try
+            {
+                string handle = req.Query["handle"];
+                string password = req.Query["password"];
+                if (handle == null || password == null)
+                    throw new ArgumentException("Handle and password required");
+                var user = await Entities.GetEntityAsync<UserEntity>("users", "user", handle);
+                if (user == null) throw new ArgumentException("Check username and password");
+                var hashedPassword = HashAndSalt.GetHash(password, user.Salt);
+                if (!hashedPassword.SequenceEqual(user.Password)) throw new ArgumentException("Check username and password");
+                user.LastAccess = DateTime.Now.ToString();
+                user.SessionToken = Guid.NewGuid().ToString();
+                await Entities.UpdateEntityAsync("users", user);
+                return new OkObjectResult(user.SessionToken);
+            }
+            catch (Exception ex)
+            {
+                return new BadRequestObjectResult($"Login failed: {ex.Message}");
+            }
         }
     }
 }
