@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using WatchFunctions.Model;
+using System.Text.RegularExpressions;
 
 namespace WatchFunctions.Functions
 {
@@ -27,6 +28,8 @@ namespace WatchFunctions.Functions
                 var existingUser = await Entities.GetEntityAsync<UserEntity>("users", "user", newUser.Handle);
                 if (existingUser != null)
                     throw new ArgumentException("Handle in use");
+                if (!ComplexPassword(newUser.Password))
+                    throw new ArgumentException("Password not complex enough");
                 var newEntity = new UserEntity()
                 {
                     PartitionKey = "user",
@@ -43,6 +46,21 @@ namespace WatchFunctions.Functions
             {
                 return new BadRequestObjectResult($"User creation failed: {ex.Message}");
             }
+        }
+
+        private static bool ComplexPassword(string password)
+        {
+            if (password == null) return false;
+            if (password.Length < 8) return false;
+            var regex = new Regex(@"[\!@#$%^&*()\\[\]{}\-_+=~`|:;/""'<>,./?]");
+            if (!regex.IsMatch(password)) return false;
+            regex = new Regex(@"[a-z]");
+            if (!regex.IsMatch(password)) return false;
+            regex = new Regex(@"[A-Z]");
+            if (!regex.IsMatch(password)) return false;
+            regex = new Regex(@"[0-9]");
+            if (!regex.IsMatch(password)) return false;
+            return true;
         }
     }
 }
