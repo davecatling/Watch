@@ -35,7 +35,17 @@ namespace WatchFunctions
             var table = Table("users");
             TableQuery<UserEntity> userQuery = new TableQuery<UserEntity>().Where($"SessionToken eq '{session}'");
             var result = await table.ExecuteQuerySegmentedAsync(userQuery, null);
-            return (UserEntity)result.Results[0];
+            if (result.Results.Count > 0)
+            {
+                var user = (UserEntity)result.Results[0];
+                var lastAccessed = DateTime.Parse(user.LastAccess);
+                if (DateTime.Now.Subtract(lastAccessed) > TimeSpan.FromMinutes(1))
+                    throw new InvalidOperationException("Session expired");
+                user.LastAccess = DateTime.Now.ToString();
+                _ = await SaveEntityAsync("users", user);
+                return user;
+            }
+            return null;
         }
 
         public static async Task<IEnumerable<MessageEntity>> ReadMessages(string channelNumber)
