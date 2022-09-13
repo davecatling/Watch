@@ -42,7 +42,7 @@ namespace WatchFunctions
                 if (DateTime.Now.Subtract(lastAccessed) > TimeSpan.FromMinutes(1))
                     throw new InvalidOperationException("Session expired");
                 user.LastAccess = DateTime.Now.ToString();
-                _ = await SaveEntityAsync("users", user);
+                _ = await UpdateEntityAsync("users", user);
                 return user;
             }
             return null;
@@ -82,8 +82,8 @@ namespace WatchFunctions
 
         public static CloudTable Table(string tableName)
         {
-            var connString = Environment.GetEnvironmentVariable("WEBSITE_CONTENTAZUREFILECONNECTIONSTRING", EnvironmentVariableTarget.Process);
-            //var connString = @"AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;DefaultEndpointsProtocol=http;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;QueueEndpoint=http://127.0.0.1:10001/devstoreaccount1;TableEndpoint=http://127.0.0.1:10002/devstoreaccount1;";
+            //var connString = Environment.GetEnvironmentVariable("WEBSITE_CONTENTAZUREFILECONNECTIONSTRING", EnvironmentVariableTarget.Process);
+            var connString = @"AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;DefaultEndpointsProtocol=http;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;QueueEndpoint=http://127.0.0.1:10001/devstoreaccount1;TableEndpoint=http://127.0.0.1:10002/devstoreaccount1;";
             var storageAccount = CloudStorageAccount.Parse(connString);
             var tableClient = storageAccount.CreateCloudTableClient();
             return tableClient.GetTableReference(tableName);

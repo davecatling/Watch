@@ -9,6 +9,7 @@ namespace WatchFunctions.Model
         public string Email { get; set; }
         public string SessionToken { get; set; }
         public string LastAccess { get; set; }
+        public string PublicKey { get; set; }
 
         public UserEntity() { }
     }

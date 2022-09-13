@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using System.Timers;
 
@@ -36,11 +37,15 @@ namespace WatchWpfClient.Model
 
         public async Task<bool> NewUser(string handle, string? email, string passWord)
         {
+            var rsa = RSA.Create();
+            rsa.KeySize = 2048;
+            var publicKey = rsa.ToXmlString(false);
             var dto = new Dtos.NewUserDto()
             {
                 Handle = handle,
                 Email = email,
-                Password = passWord
+                Password = passWord,
+                PublicKey = publicKey
             };
             return await _functionProxy!.NewUser(dto);
         }

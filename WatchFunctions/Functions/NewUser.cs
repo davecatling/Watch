@@ -34,7 +34,8 @@ namespace WatchFunctions.Functions
                 {
                     PartitionKey = "user",
                     RowKey = newUser.Handle,
-                    Email = newUser.Email
+                    Email = newUser.Email,
+                    PublicKey = newUser.PublicKey
                 };
                 newEntity.Salt = HashAndSalt.GenerateSalt();
                 newEntity.Password = HashAndSalt.GetHash(newUser.Password, newEntity.Salt);

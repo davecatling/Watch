@@ -19,7 +19,7 @@ namespace WatchWpfClient.Model
 
         public FunctionProxy()
         {
-            var configPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Model\WatchConfig.json");
+            var configPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, @"Model\WatchConfig.json");
             GetConfig(configPath);
         }
 
