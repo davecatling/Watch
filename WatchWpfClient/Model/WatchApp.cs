@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
 
@@ -24,6 +26,8 @@ namespace WatchWpfClient.Model
         private bool _channelInputMode;
         private string? _channelNumber;
         private FunctionProxy? _functionProxy;
+        private string _handle;
+        private string _password;
 
         public WatchApp()
         {
@@ -35,25 +39,50 @@ namespace WatchWpfClient.Model
             _syncTimer.Start();
         }
 
-        public async Task<bool> NewUser(string handle, string? email, string passWord)
+        public async Task<bool> NewUser(string handle, string? email, string password)
         {
             var rsa = RSA.Create();
             rsa.KeySize = 2048;
             var publicKey = rsa.ToXmlString(false);
+
+            var privateKey = rsa.ToXmlString(true);
+            var path = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),@"\Watch");
+            Directory.CreateDirectory(path);
+            var keyFileName = handle + ".key";
+            using (var stream = new FileStream(Path.Join(path, keyFileName), FileMode.Create))
+            {
+                stream.Write(Encoding.ASCII.GetBytes(privateKey), 0, privateKey.Length);
+            }             
             var dto = new Dtos.NewUserDto()
             {
                 Handle = handle,
                 Email = email,
-                Password = passWord,
+                Password = password,
                 PublicKey = publicKey
             };
+            _handle = handle;
+            _password = password;
             return await _functionProxy!.NewUser(dto);
         }
 
         public async Task<bool> Login(string username, string password)
         {
             var result = await _functionProxy!.Login(username, password);
+            _handle = username;
+            _password = password;
             return result;
+        }
+
+        private RSA UserPrivateKey()
+        {
+            var rsa = RSA.Create();
+            rsa.KeySize = 2048;
+            var path = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"\Watch");
+            var bytes = File.ReadAllBytes(Path.Join(path, _handle + ".key"));
+            rsa.FromXmlString(Encoding.ASCII.GetString(bytes));
+            //rsa.ImportEncryptedPkcs8PrivateKey((ReadOnlySpan<char>)_password, (ReadOnlySpan<byte>)File.ReadAllBytes(Path.Join(path, _handle + ".p8")),
+            //    out _);
+            return rsa;
         }
 
         public async Task<bool> Read()
@@ -66,14 +95,29 @@ namespace WatchWpfClient.Model
             return true;
         }
 
-        public async Task<string> Write(string message)
+        public async Task<string> Write(string message, string to)
         {
-            return await _functionProxy!.Write(_channelNumber!, message);
+            to = "TestUser02";
+            if (to != "ALL")
+            {
+                var publicKey = await PublicKey(to);
+                var rsa = RSA.Create();
+                rsa.KeySize = 2048;
+                rsa.FromXmlString(publicKey);
+                var encryptedMessage = rsa.Encrypt(Encoding.Unicode.GetBytes(message), RSAEncryptionPadding.OaepSHA256);
+                message = Encoding.Unicode.GetString(encryptedMessage);
+            }
+            return await _functionProxy!.Write(_channelNumber!, message, to);
         }
 
         public async Task<string> GrantAccess(string handle)
         {
             return await _functionProxy!.GrantAccess(_channelNumber!, handle);
+        }
+
+        private async Task<string> PublicKey(string handle)
+        {
+            return await _functionProxy!.PublicKey(handle);
         }
 
         private void SyncTimer_Elapsed(object? sender, ElapsedEventArgs e)
@@ -90,6 +134,12 @@ namespace WatchWpfClient.Model
 
         private void AddMessage(Message msg)
         {
+            if (msg.To == _handle)
+            {
+                var rsa = UserPrivateKey();
+                var plainText = rsa.Decrypt(Encoding.Unicode.GetBytes(msg.Text), RSAEncryptionPadding.OaepSHA256);
+                msg.Text = Encoding.Unicode.GetString(plainText);
+            }
             Messages!.Add(msg);
             ItemAddedOrRemoved?.Invoke(this, new ItemAddedOrRemovedEventArgs(msg, ChangeType.Added));
         }

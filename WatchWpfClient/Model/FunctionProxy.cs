@@ -48,11 +48,11 @@ namespace WatchWpfClient.Model
             throw new InvalidOperationException(result);
         }
 
-        public async Task<string> Write(string channelNumber, string message)
+        public async Task<string> Write(string channelNumber, string message, string to)
         {
             if (_sessionToken == null || _sessionToken == string.Empty)
                 throw new InvalidOperationException("No current session");
-            var url = $"{_config!.URL}Write?code={_config.WriteCode}&channelNumber={channelNumber}&message={WebUtility.UrlEncode(message)}";
+            var url = $"{_config!.URL}Write?code={_config.WriteCode}&channelNumber={channelNumber}&message={WebUtility.UrlEncode(message)}&to={to}";
             var client = new HttpClient();
             client.DefaultRequestHeaders.Authorization =
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _sessionToken);
@@ -72,6 +72,21 @@ namespace WatchWpfClient.Model
             client.DefaultRequestHeaders.Authorization =
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _sessionToken);
             var response = await client.PostAsync(url, null);
+            var result = await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
+                return result;
+            throw new InvalidOperationException(result);
+        }
+
+        public async Task<string> PublicKey(string handle)
+        {
+            if (_sessionToken == null || _sessionToken == string.Empty)
+                throw new InvalidOperationException("No current session");
+            var url = $"{_config!.URL}PublicKey?code={_config.PublicKeyCode}&handle={WebUtility.UrlEncode(handle)}";
+            var client = new HttpClient();
+            client.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _sessionToken);
+            var response = await client.GetAsync(url);
             var result = await response.Content.ReadAsStringAsync();
             if (response.IsSuccessStatusCode)
                 return result;

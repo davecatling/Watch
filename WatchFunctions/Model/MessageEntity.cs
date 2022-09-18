@@ -5,6 +5,7 @@ namespace WatchFunctions.Model
     public class MessageEntity : TableEntity
     {
         public string Sender { get; set; }
+        public string To { get; set; }
         public string Text { get; set; }
         public MessageEntity() { }        
     }

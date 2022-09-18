@@ -8,5 +8,6 @@
         public string ReadCode { get; set; }
         public string WriteCode { get; set; }
         public string GrantAccessCode { get; set; }
+        public string PublicKeyCode { get; set; }
     }
 }

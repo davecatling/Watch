@@ -370,7 +370,7 @@ namespace WatchWpfClient.ViewModels
             Status = "Please wait...";
             try
             {
-                var result = await _watchApp.Write(NewMessage);
+                var result = await _watchApp.Write(NewMessage, "ALL");
                 if (result == "OK")
                 {
                     NewMessage = string.Empty;

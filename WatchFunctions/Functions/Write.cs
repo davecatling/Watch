@@ -29,11 +29,13 @@ namespace WatchFunctions.Functions
                 if (!hasAccess)
                     throw new InvalidOperationException("Access denied");
                 string message = req.Query["message"];
+                string to = req.Query["to"];
                 var messageEntity = new MessageEntity()
                 {
                     PartitionKey = channelNumber,
                     RowKey = Guid.NewGuid().ToString(),
                     Text = message,
+                    To = to,
                     Sender = user.RowKey
                 };
                 _ = await Entities.SaveEntityAsync("messages", messageEntity);
