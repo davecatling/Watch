@@ -41,28 +41,17 @@ namespace WatchWpfClient.Model
 
         public async Task<bool> NewUser(string handle, string? email, string password)
         {
-            var rsa = RSA.Create();
-            rsa.KeySize = 2048;
-            var publicKey = rsa.ToXmlString(false);
-
-            var privateKey = rsa.ToXmlString(true);
-            var path = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),@"\Watch");
-            Directory.CreateDirectory(path);
-            var keyFileName = handle + ".key";
-            using (var stream = new FileStream(Path.Join(path, keyFileName), FileMode.Create))
-            {
-                stream.Write(Encoding.ASCII.GetBytes(privateKey), 0, privateKey.Length);
-            }             
-            var dto = new Dtos.NewUserDto()
+            var newUserDto = new Dtos.NewUserDto()
             {
                 Handle = handle,
                 Email = email,
-                Password = password,
-                PublicKey = publicKey
+                Password = password
             };
+            var watchRsa = new WatchRsa(_functionProxy!);
+            var newUserWithKeysDto = (watchRsa.GenerateKeys(newUserDto));
             _handle = handle;
             _password = password;
-            return await _functionProxy!.NewUser(dto);
+            return await _functionProxy!.NewUser(newUserWithKeysDto);
         }
 
         public async Task<bool> Login(string username, string password)

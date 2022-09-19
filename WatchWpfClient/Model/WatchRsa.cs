@@ -3,6 +3,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Security.Cryptography;
 using System.IO;
+using WatchWpfClient.Model.Dtos;
 
 namespace WatchWpfClient.Model
 {
@@ -11,9 +12,27 @@ namespace WatchWpfClient.Model
         private readonly UnicodeEncoding _byteConverter = new();
         private readonly FunctionProxy _functionProxy;
 
-        public WatchRsa(FunctionProxy proxy)
+        internal WatchRsa(FunctionProxy proxy)
         {
             _functionProxy = proxy;
+        }
+
+        internal NewUserDto GenerateKeys(NewUserDto newUserDto)
+        {
+            RSACryptoServiceProvider rsa = new();
+            var publicKey = rsa.ToXmlString(false);
+            var privateKey = rsa.ToXmlString(true);
+            var path = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"\Watch");
+            Directory.CreateDirectory(path);
+            var keyFileName = newUserDto.Handle + ".key";
+            var fullPath = Path.Join(path, keyFileName);
+            if (File.Exists(fullPath)) File.Delete(fullPath);
+            using (var textWriter = new StreamWriter(fullPath))
+            {
+                textWriter.Write(privateKey);
+            }
+            newUserDto.PublicKey = publicKey;
+            return newUserDto;
         }
 
         internal async Task<RSACryptoServiceProvider> PublicRsa(string handle)
