@@ -73,18 +73,6 @@ namespace WatchWpfClient.Model
             return result;
         }
 
-        private RSA UserPrivateKey()
-        {
-            var rsa = RSA.Create();
-            rsa.KeySize = 2048;
-            var path = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"\Watch");
-            var bytes = File.ReadAllBytes(Path.Join(path, _handle + ".key"));
-            rsa.FromXmlString(Encoding.ASCII.GetString(bytes));
-            //rsa.ImportEncryptedPkcs8PrivateKey((ReadOnlySpan<char>)_password, (ReadOnlySpan<byte>)File.ReadAllBytes(Path.Join(path, _handle + ".p8")),
-            //    out _);
-            return rsa;
-        }
-
         public async Task<bool> Read()
         {
             var latestMessages = await _functionProxy!.Read(_channelNumber!);
@@ -100,12 +88,8 @@ namespace WatchWpfClient.Model
             to = "TestUser02";
             if (to != "ALL")
             {
-                var publicKey = await PublicKey(to);
-                var rsa = RSA.Create();
-                rsa.KeySize = 2048;
-                rsa.FromXmlString(publicKey);
-                var encryptedMessage = rsa.Encrypt(Encoding.Unicode.GetBytes(message), RSAEncryptionPadding.OaepSHA256);
-                message = Encoding.Unicode.GetString(encryptedMessage);
+                var watchRsa = new WatchRsa(_functionProxy!);
+                message = await watchRsa.Encrypt(message, to);
             }
             return await _functionProxy!.Write(_channelNumber!, message, to);
         }
@@ -136,9 +120,9 @@ namespace WatchWpfClient.Model
         {
             if (msg.To == _handle)
             {
-                var rsa = UserPrivateKey();
-                var plainText = rsa.Decrypt(Encoding.Unicode.GetBytes(msg.Text), RSAEncryptionPadding.OaepSHA256);
-                msg.Text = Encoding.Unicode.GetString(plainText);
+                var watchRsa = new WatchRsa(_functionProxy!);
+                var plainText = watchRsa.Decrypt(msg.Text, msg.To);
+                msg.Text = plainText;
             }
             Messages!.Add(msg);
             ItemAddedOrRemoved?.Invoke(this, new ItemAddedOrRemovedEventArgs(msg, ChangeType.Added));
