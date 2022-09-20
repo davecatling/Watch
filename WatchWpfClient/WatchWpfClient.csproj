@@ -12,6 +12,7 @@
     <None Remove="Images\Clock.png" />
     <None Remove="Model\WatchConfig.json" />
     <None Remove="Views\Images\watch.ico" />
+    <None Remove="WatchConfig.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -22,11 +23,11 @@
     <Resource Include="Images\Clock.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Model\WatchConfig.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
     <Resource Include="Views\Images\watch.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="WatchConfig.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
   </ItemGroup>
 

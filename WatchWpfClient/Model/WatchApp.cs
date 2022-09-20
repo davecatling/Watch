@@ -66,9 +66,9 @@ namespace WatchWpfClient.Model
         public async Task<bool> Read()
         {
             var latestMessages = await _functionProxy!.Read(_channelNumber!);
-            var deletedMessages = Messages!.Where(msg => !latestMessages.Any(lm => lm.Id == msg.Id)).ToList();
+            var deletedMessages = Messages!.Where(msg => !latestMessages.Any(lm => lm.RowKey == msg.Id)).ToList();
             deletedMessages.ForEach(dm => RemoveMessage(dm));
-            var addedMessages = latestMessages.Where(lm => !Messages!.Any(msg => msg.Id == lm.Id)).ToList();
+            var addedMessages = latestMessages.Where(lm => !Messages!.Any(msg => msg.Id == lm.RowKey)).ToList();
             addedMessages.ForEach(am => AddMessage(am));
             return true;
         }
@@ -109,16 +109,17 @@ namespace WatchWpfClient.Model
             ItemAddedOrRemoved?.Invoke(this, new ItemAddedOrRemovedEventArgs(msg, ChangeType.Removed));
         }
 
-        private void AddMessage(Message msg)
+        private void AddMessage(Dtos.MessageDto msgDto)
         {
-            if (msg.To == _handle)
+            var message = new Message(msgDto);
+            if (msgDto.To == _handle)
             {
                 var watchRsa = new WatchRsa(_functionProxy!);
-                var plainText = watchRsa.Decrypt(msg.TextBytes, msg.To);
-                msg.Text = plainText;
+                var plainText = watchRsa.Decrypt(msgDto.TextBytes, msgDto.To);
+                message.Text = plainText;
             }
-            Messages!.Add(msg);
-            ItemAddedOrRemoved?.Invoke(this, new ItemAddedOrRemovedEventArgs(msg, ChangeType.Added));
+            Messages!.Add(message);
+            ItemAddedOrRemoved?.Invoke(this, new ItemAddedOrRemovedEventArgs(message, ChangeType.Added));
         }
 
         private void AddNewSync()

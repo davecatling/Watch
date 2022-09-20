@@ -93,7 +93,7 @@ namespace WatchWpfClient.Model
             throw new InvalidOperationException(result);
         }
 
-        public async Task<List<Message>> Read(string channelNumber)
+        public async Task<List<MessageDto>> Read(string channelNumber)
         {
             if (_sessionToken == null || _sessionToken == string.Empty)
                 throw new InvalidOperationException("No current session");
@@ -106,8 +106,8 @@ namespace WatchWpfClient.Model
             if (!response.IsSuccessStatusCode)
                 throw new InvalidOperationException(result);
             var dtos = JsonConvert.DeserializeObject<List<MessageDto>>(result);
-            var messages = dtos.Select(dto => new Message(dto)).ToList();
-            return messages.OrderBy(m => m.TimeStamp).ToList();
+            //var messages = dtos.Select(dto => new Message(dto)).ToList();
+            return dtos.OrderBy(m => m.TimeStamp).ToList();
         }
 
         private void GetConfig(string path)
