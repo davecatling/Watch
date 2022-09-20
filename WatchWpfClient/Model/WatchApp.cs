@@ -6,6 +6,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
+using WatchFunctions.Dtos;
 
 namespace WatchWpfClient.Model
 {
@@ -74,23 +75,26 @@ namespace WatchWpfClient.Model
 
         public async Task<string> Write(string message, string to)
         {
+            byte[] textBytes = null;
             to = "TestUser02";
             if (to != "ALL")
             {
                 var watchRsa = new WatchRsa(_functionProxy!);
-                message = await watchRsa.Encrypt(message, to);
+                textBytes = await watchRsa.Encrypt(message, to);
             }
-            return await _functionProxy!.Write(_channelNumber!, message, to);
+            if (textBytes == null)
+                textBytes = new UnicodeEncoding().GetBytes(message);
+            return await _functionProxy!.Write(new Dtos.MessageDto()
+            {
+                ChannelNumber = _channelNumber!, 
+                TextBytes = textBytes,
+                To = to
+            });
         }
 
         public async Task<string> GrantAccess(string handle)
         {
             return await _functionProxy!.GrantAccess(_channelNumber!, handle);
-        }
-
-        private async Task<string> PublicKey(string handle)
-        {
-            return await _functionProxy!.PublicKey(handle);
         }
 
         private void SyncTimer_Elapsed(object? sender, ElapsedEventArgs e)
@@ -110,7 +114,7 @@ namespace WatchWpfClient.Model
             if (msg.To == _handle)
             {
                 var watchRsa = new WatchRsa(_functionProxy!);
-                var plainText = watchRsa.Decrypt(msg.Text, msg.To);
+                var plainText = watchRsa.Decrypt(msg.TextBytes, msg.To);
                 msg.Text = plainText;
             }
             Messages!.Add(msg);

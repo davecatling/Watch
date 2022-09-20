@@ -6,6 +6,7 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using WatchFunctions.Model;
+using System.Text;
 
 namespace WatchFunctions.Functions
 {
@@ -44,7 +45,7 @@ namespace WatchFunctions.Functions
                     PartitionKey = channelNumber,
                     RowKey = Guid.NewGuid().ToString(),
                     Sender = "SYSTEM",
-                    Text = $"{user.RowKey} granted access to {handle}"
+                    TextBytes = new UnicodeEncoding().GetBytes($"{user.RowKey} granted access to {handle}")
                 };
                 _ = await Entities.SaveEntityAsync("messages", newMessage);
                 return new OkObjectResult("OK");

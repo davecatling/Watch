@@ -55,18 +55,17 @@ namespace WatchWpfClient.Model
             return rsa;
         }
 
-        internal string Decrypt(string encryptedString, string handle)
+        internal string Decrypt(byte[] encryptedBytes, string handle)
         {
             byte[] decryptedBytes;
             using (var rsa = PrivateRsa(handle))
             {
-                var encyptedBytes = _byteConverter.GetBytes(encryptedString);
-                decryptedBytes = rsa.Decrypt(encyptedBytes, false);
+                decryptedBytes = rsa.Decrypt(encryptedBytes, false);
             }
             return _byteConverter.GetString(decryptedBytes);            
         }
 
-        internal async Task<string> Encrypt(string plainString, string handle)
+        internal async Task<byte[]> Encrypt(string plainString, string handle)
         {
             byte[] encryptedBytes;
             using (var rsa = await PublicRsa(handle))
@@ -74,7 +73,12 @@ namespace WatchWpfClient.Model
                 var plainBytes = _byteConverter.GetBytes(plainString);
                 encryptedBytes = rsa.Encrypt(plainBytes, false);
             }
-            return _byteConverter.GetString(encryptedBytes);
+            using (var rsa = PrivateRsa(handle))
+            {
+                var plainBytes = rsa.Decrypt(encryptedBytes, false);
+                var plainText = _byteConverter.GetString(plainBytes);
+            }
+            return encryptedBytes;
         }
     }
 }

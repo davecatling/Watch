@@ -15,18 +15,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Model\WatchConfig.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\WatchFunctions\WatchFunctions.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Resource Include="Images\Clock.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Model\WatchConfig.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Views\Images\watch.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

@@ -6,6 +6,8 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using WatchFunctions.Model;
+using System.IO;
+using Newtonsoft.Json;
 
 namespace WatchFunctions.Functions
 {
@@ -24,18 +26,18 @@ namespace WatchFunctions.Functions
                 var user = await Entities.GetUserBySessionAsync(authHeader[7..]);
                 if (user == null)
                     throw new ArgumentException("Invalid session");
-                string channelNumber = req.Query["channelNumber"];
-                var hasAccess = await Entities.HasAccess(channelNumber, user.RowKey);
+                string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+                var message = JsonConvert.DeserializeObject<Dtos.MessageDto>(requestBody);
+                var hasAccess = await Entities.HasAccess(message.ChannelNumber, user.RowKey);
                 if (!hasAccess)
                     throw new InvalidOperationException("Access denied");
-                string message = req.Query["message"];
                 string to = req.Query["to"];
                 var messageEntity = new MessageEntity()
                 {
-                    PartitionKey = channelNumber,
+                    PartitionKey = message.ChannelNumber,
                     RowKey = Guid.NewGuid().ToString(),
-                    Text = message,
-                    To = to,
+                    TextBytes = message.TextBytes,
+                    To = message.To,
                     Sender = user.RowKey
                 };
                 _ = await Entities.SaveEntityAsync("messages", messageEntity);

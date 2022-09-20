@@ -1,4 +1,6 @@
-﻿namespace WatchWpfClient.Model
+﻿using System.Text;
+
+namespace WatchWpfClient.Model
 {
     public class Message : IWatchItem
     {
@@ -13,7 +15,7 @@
             Id = dto.RowKey;
             Sender = dto.Sender;
             To = dto.To;
-            Text = dto.Text;
+            Text = new UnicodeEncoding().GetString(dto.TextBytes);
             TimeStamp = dto.TimeStamp;
         }
     }
