@@ -106,8 +106,23 @@ namespace WatchWpfClient.Model
             if (!response.IsSuccessStatusCode)
                 throw new InvalidOperationException(result);
             var dtos = JsonConvert.DeserializeObject<List<MessageDto>>(result);
-            //var messages = dtos.Select(dto => new Message(dto)).ToList();
             return dtos.OrderBy(m => m.TimeStamp).ToList();
+        }
+
+        public async Task<List<string>> ChannelHandles(string channelNumber)
+        {
+            if (_sessionToken == null || _sessionToken == string.Empty)
+                throw new InvalidOperationException("No current session");
+            var url = $"{_config!.URL}ChannelHandles?code={_config.ChannelHandlesCode}&channelNumber={channelNumber}";
+            var client = new HttpClient();
+            client.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _sessionToken);
+            var response = await client.GetAsync(url);
+            var result = await response.Content.ReadAsStringAsync();
+            if (!response.IsSuccessStatusCode)
+                throw new InvalidOperationException(result);
+            var handles = JsonConvert.DeserializeObject<List<string>>(result);
+            return handles.OrderBy(h => h).ToList();
         }
 
         private void GetConfig(string path)

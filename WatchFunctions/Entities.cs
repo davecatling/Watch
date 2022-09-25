@@ -80,6 +80,21 @@ namespace WatchFunctions
             return result.Results.Count != 0;
         }
 
+        public static async Task<List<string>> HandlesWithAccess(string channelNumber)
+        {
+            var result = new List<string>();
+            var table = Table("access");
+            TableQuery<AccessEntity> accessQuery = new TableQuery<AccessEntity>().Where($"PartitionKey " +
+                $"eq '{channelNumber}'");
+            var query = await table.ExecuteQuerySegmentedAsync(accessQuery, null);
+            if (query.Results.Count == 0)
+            {
+                return result;
+            }
+            query.Results.ForEach(access => result.Add(access.Handle));
+            return result;
+        }
+
         public static CloudTable Table(string tableName)
         {
             //var connString = Environment.GetEnvironmentVariable("WEBSITE_CONTENTAZUREFILECONNECTIONSTRING", EnvironmentVariableTarget.Process);

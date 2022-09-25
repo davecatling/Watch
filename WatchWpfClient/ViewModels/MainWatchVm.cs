@@ -25,6 +25,7 @@ namespace WatchWpfClient.ViewModels
         private string _loginHandle;
         private string _loginPassword;
         private string _newMessage;
+        private string _newMessageTo;
         private string _grantAccessHandle;
         private string _status;
         private Timer _readTimer;
@@ -117,6 +118,16 @@ namespace WatchWpfClient.ViewModels
             {
                 _newMessage = value;
                 OnPropertyChanged(nameof(NewMessage));
+            }
+        }
+
+        public string NewMessageTo
+        {
+            get => _newMessageTo ?? "ALL";
+            set
+            {
+                _newMessageTo = value;
+                OnPropertyChanged(nameof(NewMessageTo));
             }
         }
 
@@ -324,6 +335,8 @@ namespace WatchWpfClient.ViewModels
                 var result = await _watchApp.Login(_loginHandle, _loginPassword);
                 if (result)
                 {
+                    if (Messages != null)
+                        Messages.Clear();
                     var readSuccess = await Read();
                     if (readSuccess)
                         State = WatchVmState.Reading;
@@ -370,7 +383,7 @@ namespace WatchWpfClient.ViewModels
             Status = "Please wait...";
             try
             {
-                var result = await _watchApp.Write(NewMessage, "ALL");
+                var result = await _watchApp.Write(NewMessage, NewMessageTo);
                 if (result == "OK")
                 {
                     NewMessage = string.Empty;

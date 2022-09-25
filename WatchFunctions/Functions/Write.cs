@@ -32,12 +32,18 @@ namespace WatchFunctions.Functions
                 if (!hasAccess)
                     throw new InvalidOperationException("Access denied");
                 string to = req.Query["to"];
+                if (to != null && to != "ALL")
+                {
+                    hasAccess = await Entities.HasAccess(message.ChannelNumber, to);
+                    if (!hasAccess)
+                        throw new InvalidOperationException("Recipient invalid");
+                }
                 var messageEntity = new MessageEntity()
                 {
                     PartitionKey = message.ChannelNumber,
                     RowKey = Guid.NewGuid().ToString(),
                     TextBytes = message.TextBytes,
-                    To = message.To,
+                    To = message.To ?? "ALL",
                     Sender = user.RowKey
                 };
                 _ = await Entities.SaveEntityAsync("messages", messageEntity);

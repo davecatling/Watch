@@ -60,6 +60,8 @@ namespace WatchWpfClient.Model
             var result = await _functionProxy!.Login(username, password);
             _handle = username;
             _password = password;
+            if (Messages != null)
+                Messages.Clear();
             return result;
         }
 
@@ -73,10 +75,15 @@ namespace WatchWpfClient.Model
             return true;
         }
 
+        public async Task<List<string>> ChannelHandles()
+        {
+            var handles = await _functionProxy!.ChannelHandles(_channelNumber!);
+            return handles;
+        }
+
         public async Task<string> Write(string message, string to)
         {
             byte[] textBytes = null;
-            to = "TestUser02";
             if (to != "ALL")
             {
                 var watchRsa = new WatchRsa(_functionProxy!);
