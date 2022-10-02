@@ -26,9 +26,9 @@
     <Resource Include="Views\Images\watch.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="WatchConfig.json">
+    <Content Include="WatchConfig.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
