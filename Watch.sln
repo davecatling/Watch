@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WatchFunctions", "WatchFunc
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WatchWpfClient", "WatchWpfClient\WatchWpfClient.csproj", "{4861B451-42B8-41AB-8365-B448B0E6D808}"
 EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "WatchSetup", "WatchSetup\WatchSetup.vdproj", "{FE07C3FD-4146-4CF1-B796-9BD729E0AEF5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,8 @@ Global
 		{4861B451-42B8-41AB-8365-B448B0E6D808}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4861B451-42B8-41AB-8365-B448B0E6D808}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4861B451-42B8-41AB-8365-B448B0E6D808}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE07C3FD-4146-4CF1-B796-9BD729E0AEF5}.Debug|Any CPU.ActiveCfg = Debug
+		{FE07C3FD-4146-4CF1-B796-9BD729E0AEF5}.Release|Any CPU.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
