@@ -20,6 +20,7 @@ namespace WatchWpfClient.Model
         internal NewUserDto GenerateKeys(NewUserDto newUserDto)
         {
             RSACryptoServiceProvider rsa = new();
+            rsa.KeySize = 2048;
             var publicKey = rsa.ToXmlString(false);
             var privateKey = rsa.ToXmlString(true);
             var path = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"\Watch");
@@ -41,6 +42,7 @@ namespace WatchWpfClient.Model
             keyXml = await _functionProxy.PublicKey(handle);
 
             RSACryptoServiceProvider rsa = new();
+            rsa.KeySize = 2048;
             rsa.FromXmlString(keyXml);
             return rsa;
         }
@@ -51,6 +53,7 @@ namespace WatchWpfClient.Model
             var keyXml = File.ReadAllText(Path.Join(path, handle + ".key"));
 
             RSACryptoServiceProvider rsa = new();
+            rsa.KeySize = 2048;
             rsa.FromXmlString(keyXml);
             return rsa;
         }
