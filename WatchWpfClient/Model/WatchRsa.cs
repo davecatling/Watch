@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Security.Cryptography;
 using System.IO;
 using WatchWpfClient.Model.Dtos;
+using System.Linq;
 
 namespace WatchWpfClient.Model
 {
@@ -22,15 +23,16 @@ namespace WatchWpfClient.Model
             RSACryptoServiceProvider rsa = new();
             rsa.KeySize = 2048;
             var publicKey = rsa.ToXmlString(false);
-            var privateKey = rsa.ToXmlString(true);
             var path = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"\Watch");
             Directory.CreateDirectory(path);
-            var keyFileName = newUserDto.Handle + ".key";
+            var privateKey = rsa.ExportEncryptedPkcs8PrivateKey((ReadOnlySpan<char>)newUserDto.Password, 
+                new PbeParameters(PbeEncryptionAlgorithm.Aes256Cbc, HashAlgorithmName.SHA256, 256));
+            var keyFileName = newUserDto.Handle + ".p8";
             var fullPath = Path.Join(path, keyFileName);
             if (File.Exists(fullPath)) File.Delete(fullPath);
-            using (var textWriter = new StreamWriter(fullPath))
+            using (BinaryWriter binaryWriter = new(File.Open(fullPath, FileMode.Create)))
             {
-                textWriter.Write(privateKey);
+                binaryWriter.Write(privateKey);
             }
             newUserDto.PublicKey = publicKey;
             return newUserDto;
@@ -47,21 +49,27 @@ namespace WatchWpfClient.Model
             return rsa;
         }
 
-        internal static RSACryptoServiceProvider PrivateRsa(string handle)
+        internal static RSACryptoServiceProvider PrivateRsa(string handle, string password)
         {
             var path = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"\Watch");
-            var keyXml = File.ReadAllText(Path.Join(path, handle + ".key"));
+            var keyPath = Path.Join(path, handle + ".p8");
+            var passwordBytes = password.Select(c => (byte)c).ToArray();
 
             RSACryptoServiceProvider rsa = new();
             rsa.KeySize = 2048;
-            rsa.FromXmlString(keyXml);
+            byte[] keyBytes;
+            using (BinaryReader binaryReader = new(File.Open(keyPath, FileMode.Open)))
+            {
+                keyBytes = binaryReader.ReadBytes((int)binaryReader.BaseStream.Length);
+            }
+            rsa.ImportEncryptedPkcs8PrivateKey((ReadOnlySpan<byte>)passwordBytes, keyBytes, out _);
             return rsa;
         }
 
-        internal string Decrypt(byte[] encryptedBytes, string handle)
+        internal string Decrypt(byte[] encryptedBytes, string handle, string password)
         {
             byte[] decryptedBytes;
-            using (var rsa = PrivateRsa(handle))
+            using (var rsa = PrivateRsa(handle, password))
             {
                 decryptedBytes = rsa.Decrypt(encryptedBytes, false);
             }
@@ -75,11 +83,6 @@ namespace WatchWpfClient.Model
             {
                 var plainBytes = _byteConverter.GetBytes(plainString);
                 encryptedBytes = rsa.Encrypt(plainBytes, false);
-            }
-            using (var rsa = PrivateRsa(handle))
-            {
-                var plainBytes = rsa.Decrypt(encryptedBytes, false);
-                var plainText = _byteConverter.GetString(plainBytes);
             }
             return encryptedBytes;
         }

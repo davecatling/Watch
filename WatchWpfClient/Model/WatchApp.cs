@@ -122,7 +122,7 @@ namespace WatchWpfClient.Model
             if (msgDto.To == _handle)
             {
                 var watchRsa = new WatchRsa(_functionProxy!);
-                var plainText = watchRsa.Decrypt(msgDto.TextBytes, msgDto.To);
+                var plainText = watchRsa.Decrypt(msgDto.TextBytes, msgDto.To, _password);
                 message.Text = plainText;
             }
             Messages!.Add(message);
