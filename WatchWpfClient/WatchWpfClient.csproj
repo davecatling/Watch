@@ -8,6 +8,7 @@
     <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
     <ApplicationIcon>Images\watch.ico</ApplicationIcon>
     <RepositoryUrl>https://github.com/davecatling/Watch</RepositoryUrl>
+    <FileVersion>1.0.0.1</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>

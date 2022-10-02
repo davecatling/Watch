@@ -71,7 +71,7 @@ namespace WatchWpfClient.Model
             byte[] decryptedBytes;
             using (var rsa = PrivateRsa(handle, password))
             {
-                decryptedBytes = rsa.Decrypt(encryptedBytes, false);
+                decryptedBytes = rsa.Decrypt(encryptedBytes, true);
             }
             return _byteConverter.GetString(decryptedBytes);            
         }
@@ -82,7 +82,7 @@ namespace WatchWpfClient.Model
             using (var rsa = await PublicRsa(handle))
             {
                 var plainBytes = _byteConverter.GetBytes(plainString);
-                encryptedBytes = rsa.Encrypt(plainBytes, false);
+                encryptedBytes = rsa.Encrypt(plainBytes, true);
             }
             return encryptedBytes;
         }
