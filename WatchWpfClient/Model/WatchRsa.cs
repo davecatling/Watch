@@ -26,7 +26,7 @@ namespace WatchWpfClient.Model
             var path = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"\Watch");
             Directory.CreateDirectory(path);
             var privateKey = rsa.ExportEncryptedPkcs8PrivateKey((ReadOnlySpan<char>)newUserDto.Password, 
-                new PbeParameters(PbeEncryptionAlgorithm.Aes256Cbc, HashAlgorithmName.SHA256, 256));
+                new PbeParameters(PbeEncryptionAlgorithm.Aes256Cbc, HashAlgorithmName.SHA256, 500000));
             var keyFileName = newUserDto.Handle + ".p8";
             var fullPath = Path.Join(path, keyFileName);
             if (File.Exists(fullPath)) File.Delete(fullPath);
