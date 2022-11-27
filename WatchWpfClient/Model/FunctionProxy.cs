@@ -29,27 +29,28 @@ namespace WatchWpfClient.Model
                 throw new InvalidOperationException("No current session");
         }
 
-        public async Task<bool> NewUser(NewUserDto newUserDto)
+        public async Task<string> NewUser(NewUserDto newUserDto)
         {
             var url = $"{_config!.URL}NewUser?code={_config.NewUserCode}";
             var client = new HttpClient();
             var response = await client.PostAsJsonAsync(url, newUserDto);
             var result = await response.Content.ReadAsStringAsync();
             if (response.IsSuccessStatusCode)
-                return true;
-            throw new InvalidOperationException(result);
+                return result;
+            throw new InvalidOperationException("Invalid new user response");
         }
 
-        public async Task<bool> Login(string handle, string password)
+        public async Task<LoginDto> Login(string handle, string password)
         {
             var url = $"{_config!.URL}Login?code={_config.LoginCode}&handle={WebUtility.UrlEncode(handle)}&password={WebUtility.UrlEncode(password)}";
             var client = new HttpClient();
             var response = await client.GetAsync(url);
             var result = await response.Content.ReadAsStringAsync();
             if (response.IsSuccessStatusCode)
-            {                
-                _sessionToken = result;
-                return true;
+            {
+                var dto = JsonConvert.DeserializeObject<LoginDto>(result);
+                _sessionToken = dto.SessionToken;
+                return dto;
             }
             throw new InvalidOperationException(result);
         }

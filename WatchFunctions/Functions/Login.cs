@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using WatchFunctions.Model;
 using System.Linq;
+using WatchFunctions.Dtos;
+using System.Text;
 
 namespace WatchFunctions.Functions
 {
@@ -30,7 +32,7 @@ namespace WatchFunctions.Functions
                 user.LastAccess = DateTime.Now.ToString();
                 user.SessionToken = Guid.NewGuid().ToString();
                 await Entities.UpdateEntityAsync("users", user);
-                return new OkObjectResult(user.SessionToken);
+                return new OkObjectResult(new LoginDto() { Password = new UnicodeEncoding().GetString(hashedPassword), SessionToken = user.SessionToken} );
             }
             catch (Exception ex)
             {

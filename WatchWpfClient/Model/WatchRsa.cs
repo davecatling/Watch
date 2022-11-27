@@ -18,14 +18,15 @@ namespace WatchWpfClient.Model
             _functionProxy = proxy;
         }
 
-        internal NewUserDto GenerateKeys(NewUserDto newUserDto)
+        internal async Task<NewUserDto> GenerateKeys(NewUserDto newUserDto)
         {
             RSACryptoServiceProvider rsa = new();
             rsa.KeySize = 2048;
-            var publicKey = rsa.ToXmlString(false);
+            newUserDto.PublicKey = rsa.ToXmlString(false);
+            var privateKeyPassword = await _functionProxy!.NewUser(newUserDto);
             var path = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"\Watch");
             Directory.CreateDirectory(path);
-            var privateKey = rsa.ExportEncryptedPkcs8PrivateKey((ReadOnlySpan<char>)newUserDto.Password, 
+            var privateKey = rsa.ExportEncryptedPkcs8PrivateKey((ReadOnlySpan<char>)privateKeyPassword, 
                 new PbeParameters(PbeEncryptionAlgorithm.Aes256Cbc, HashAlgorithmName.SHA256, 500000));
             var keyFileName = newUserDto.Handle + ".p8";
             var fullPath = Path.Join(path, keyFileName);
@@ -34,7 +35,6 @@ namespace WatchWpfClient.Model
             {
                 binaryWriter.Write(privateKey);
             }
-            newUserDto.PublicKey = publicKey;
             return newUserDto;
         }
 
@@ -53,8 +53,7 @@ namespace WatchWpfClient.Model
         {
             var path = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"\Watch");
             var keyPath = Path.Join(path, handle + ".p8");
-            var passwordBytes = password.Select(c => (byte)c).ToArray();
-
+            
             RSACryptoServiceProvider rsa = new();
             rsa.KeySize = 2048;
             byte[] keyBytes;
@@ -62,7 +61,7 @@ namespace WatchWpfClient.Model
             {
                 keyBytes = binaryReader.ReadBytes((int)binaryReader.BaseStream.Length);
             }
-            rsa.ImportEncryptedPkcs8PrivateKey((ReadOnlySpan<byte>)passwordBytes, keyBytes, out _);
+            rsa.ImportEncryptedPkcs8PrivateKey((ReadOnlySpan<char>)password, keyBytes, out _);
             return rsa;
         }
 

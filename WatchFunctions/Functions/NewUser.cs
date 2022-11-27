@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using WatchFunctions.Model;
 using System.Text.RegularExpressions;
+using System.Text;
 
 namespace WatchFunctions.Functions
 {
@@ -39,8 +40,7 @@ namespace WatchFunctions.Functions
                 newEntity.Salt = HashAndSalt.GenerateSalt();
                 newEntity.Password = HashAndSalt.GetHash(newUser.Password, newEntity.Salt);
                 _ = await Entities.SaveEntityAsync("users", newEntity);
-                string responseMessage = $"Hello, {newUser.Handle}. Your details have been added.";
-                return new OkObjectResult(responseMessage);
+                return new OkObjectResult(new UnicodeEncoding().GetString(newEntity.Password));
             }
             catch (Exception ex)
             {
