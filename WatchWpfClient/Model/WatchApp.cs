@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
-using WatchFunctions.Dtos;
 
 namespace WatchWpfClient.Model
 {
@@ -28,7 +25,7 @@ namespace WatchWpfClient.Model
         private string? _channelNumber;
         private FunctionProxy? _functionProxy;
         private string _handle;
-        private string _password;
+        private string _privateKeyPassword;
 
         public WatchApp()
         {
@@ -48,20 +45,19 @@ namespace WatchWpfClient.Model
                 Password = password
             };
             var watchRsa = new WatchRsa(_functionProxy!);
-            var newUserWithKeysDto = (watchRsa.GenerateKeys(newUserDto));
+            _ = await watchRsa.GenerateKeys(newUserDto);
             _handle = handle;
-            _password = password;
-            return await _functionProxy!.NewUser(newUserWithKeysDto);
+            return true;            
         }
 
         public async Task<bool> Login(string username, string password)
         {
             var result = await _functionProxy!.Login(username, password);
             _handle = username;
-            _password = password;
+            _privateKeyPassword = result.Password;
             if (Messages != null)
                 Messages.Clear();
-            return result;
+            return true;
         }
 
         public async Task<bool> Read()
@@ -121,7 +117,7 @@ namespace WatchWpfClient.Model
             if (msgDto.To == _handle)
             {
                 var watchRsa = new WatchRsa(_functionProxy!);
-                var plainText = watchRsa.Decrypt(msgDto.TextBytes, msgDto.To, _password);
+                var plainText = watchRsa.Decrypt(msgDto.TextBytes, msgDto.To, _privateKeyPassword);
                 message.Text = plainText;
             }
             Messages!.Add(message);
