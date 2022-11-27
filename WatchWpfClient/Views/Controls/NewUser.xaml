@@ -12,22 +12,18 @@
             <ColumnDefinition Width=".75*"/>            
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height=".3*"/>
-            <RowDefinition Height=".3*"/>
-            <RowDefinition Height=".3*"/>
+            <RowDefinition Height=".4*"/>
+            <RowDefinition Height=".4*"/>
             <RowDefinition Height=".2*"/>
         </Grid.RowDefinitions>
         <Label Grid.Row="0" Grid.Column="0" Content="Handle:" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
         <TextBox x:Name="HandleTextBox" Grid.Row="0" Grid.Column="1" Width="300" Height="20" Margin="5" HorizontalAlignment="Left"
                  VerticalAlignment="Bottom" Text="{Binding Path=NewUserHandle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-        <Label Grid.Row="1" Grid.Column="0" Content="Password:" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+        <Label Grid.Row="1" Grid.Column="0" Content="Password:" HorizontalAlignment="Right" VerticalAlignment="Top"/>
         <PasswordBox x:Name="PasswordBox" local:PasswordBoxAssistant.BindPassword="true" Grid.Row="1" Grid.Column="1" Width="300" 
-                 Height="20" Margin="5" HorizontalAlignment="Left" VerticalAlignment="Center" 
+                 Height="20" Margin="5" HorizontalAlignment="Left" VerticalAlignment="Top" 
                  local:PasswordBoxAssistant.BoundPassword="{Binding Path=NewUserPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-        <Label Grid.Row="2" Grid.Column="0" Content="Email (optional):" HorizontalAlignment="Right" VerticalAlignment="Top"/>
-        <TextBox x:Name="EmailBox" Grid.Row="2" Grid.Column="1" Width="300" Height="20" Margin="5" HorizontalAlignment="Left" 
-                     VerticalAlignment="Top" Text="{Binding Path=NewUserEmail, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-        <DockPanel Grid.Row="3" Grid.Column="1">
+        <DockPanel Grid.Row="2" Grid.Column="1">
             <Button x:Name="CreateUserButton" Margin="5" DockPanel.Dock="Right" Width="40" HorizontalAlignment="Right"
                     Command="{Binding NewUserCommand}">OK</Button>
         </DockPanel>
