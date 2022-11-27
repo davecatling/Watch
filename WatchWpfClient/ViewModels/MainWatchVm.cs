@@ -21,7 +21,6 @@ namespace WatchWpfClient.ViewModels
         private ObservableCollection<Message>? _messages;
         private string _newUserHandle;
         private string _newUserPassword;
-        private string _newUserEmail;
         private string _loginHandle;
         private string _loginPassword;
         private string _newMessage;
@@ -78,16 +77,6 @@ namespace WatchWpfClient.ViewModels
             {
                 _newUserPassword = value;
                 OnPropertyChanged(nameof(NewUserPassword));
-            }
-        }
-
-        public string NewUserEmail
-        {
-            get => _newUserEmail;
-            set
-            {
-                _newUserEmail = value;
-                OnPropertyChanged(nameof(NewUserEmail));
             }
         }
 
@@ -193,7 +182,6 @@ namespace WatchWpfClient.ViewModels
         {
             NewUserHandle = String.Empty;
             NewUserPassword = String.Empty;
-            NewUserEmail = String.Empty;
             LoginHandle = String.Empty;
             LoginPassword = String.Empty;
             NewMessage = String.Empty;
@@ -307,7 +295,7 @@ namespace WatchWpfClient.ViewModels
             Status = "Please wait...";
             try
             {                
-                var result = await _watchApp.NewUser(_newUserHandle, _newUserEmail, _newUserPassword);
+                var result = await _watchApp.NewUser(_newUserHandle, _newUserPassword);
                 if (result)
                 {
                     Status = $"New user {_newUserHandle} created";

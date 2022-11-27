@@ -40,12 +40,11 @@ namespace WatchWpfClient.Model
             _syncTimer.Start();
         }
 
-        public async Task<bool> NewUser(string handle, string? email, string password)
+        public async Task<bool> NewUser(string handle, string password)
         {
             var newUserDto = new Dtos.NewUserDto()
             {
                 Handle = handle,
-                Email = email,
                 Password = password
             };
             var watchRsa = new WatchRsa(_functionProxy!);
