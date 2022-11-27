@@ -15,12 +15,18 @@ namespace WatchWpfClient.Model
     {
         private WatchConfig? _config;
 
-        private string _sessionToken;
+        private string? _sessionToken;
 
         public FunctionProxy()
         {
             var configPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, @"WatchConfig.json");
             GetConfig(configPath);
+        }
+
+        private void ValidateSessionExists()
+        {
+            if (_sessionToken == null || _sessionToken == string.Empty)
+                throw new InvalidOperationException("No current session");
         }
 
         public async Task<bool> NewUser(NewUserDto newUserDto)
@@ -50,8 +56,7 @@ namespace WatchWpfClient.Model
 
         public async Task<string> Write(MessageDto messageDto)
         {
-            if (_sessionToken == null || _sessionToken == string.Empty)
-                throw new InvalidOperationException("No current session");
+            ValidateSessionExists();
             var url = $"{_config!.URL}Write?code={_config.WriteCode}";
             var client = new HttpClient();
             client.DefaultRequestHeaders.Authorization =
@@ -65,8 +70,7 @@ namespace WatchWpfClient.Model
 
         public async Task<string> GrantAccess(string channelNumber, string handle)
         {
-            if (_sessionToken == null || _sessionToken == string.Empty)
-                throw new InvalidOperationException("No current session");
+            ValidateSessionExists();
             var url = $"{_config!.URL}GrantAccess?code={_config.GrantAccessCode}&channelNumber={channelNumber}&handle={WebUtility.UrlEncode(handle)}";
             var client = new HttpClient();
             client.DefaultRequestHeaders.Authorization =
@@ -80,8 +84,7 @@ namespace WatchWpfClient.Model
 
         public async Task<string> PublicKey(string handle)
         {
-            if (_sessionToken == null || _sessionToken == string.Empty)
-                throw new InvalidOperationException("No current session");
+            ValidateSessionExists();
             var url = $"{_config!.URL}PublicKey?code={_config.PublicKeyCode}&handle={WebUtility.UrlEncode(handle)}";
             var client = new HttpClient();
             client.DefaultRequestHeaders.Authorization =
@@ -95,8 +98,7 @@ namespace WatchWpfClient.Model
 
         public async Task<List<MessageDto>> Read(string channelNumber)
         {
-            if (_sessionToken == null || _sessionToken == string.Empty)
-                throw new InvalidOperationException("No current session");
+            ValidateSessionExists();
             var url = $"{_config!.URL}Read?code={_config.ReadCode}&channelNumber={channelNumber}";
             var client = new HttpClient();
             client.DefaultRequestHeaders.Authorization =
@@ -111,8 +113,7 @@ namespace WatchWpfClient.Model
 
         public async Task<List<string>> ChannelHandles(string channelNumber)
         {
-            if (_sessionToken == null || _sessionToken == string.Empty)
-                throw new InvalidOperationException("No current session");
+            ValidateSessionExists();
             var url = $"{_config!.URL}ChannelHandles?code={_config.ChannelHandlesCode}&channelNumber={channelNumber}";
             var client = new HttpClient();
             client.DefaultRequestHeaders.Authorization =
