@@ -481,6 +481,7 @@ namespace WatchWpfClient.ViewModels
         Normal,
         LogIn,
         Reading,
-        NewUser
+        NewUser,
+        PasswordReset
     }
 }
