@@ -28,7 +28,8 @@
                     Command="{Binding LoginCommand}">OK</Button>
             <Button x:Name="NewUserButton" Margin="5" DockPanel.Dock="Right" Width="80" HorizontalAlignment="Right"
                     Command="{Binding ShowNewUserCommand}">New User</Button>
-            
+            <Button x:Name="ResetPasswordButton" Margin="5" DockPanel.Dock="Right" Width="80" HorizontalAlignment="Right"
+                    Command="{Binding ShowResetPasswordCommand}">Reset Password</Button>            
         </DockPanel>
     </Grid>
 </UserControl>
