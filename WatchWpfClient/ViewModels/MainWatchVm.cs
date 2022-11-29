@@ -21,6 +21,8 @@ namespace WatchWpfClient.ViewModels
         private ObservableCollection<Message>? _messages;
         private string _newUserHandle;
         private string _newUserPassword;
+        private string _resetPassword;
+        private string _resetPasswordValidation;
         private string _loginHandle;
         private string _loginPassword;
         private string _newMessage;
@@ -33,6 +35,7 @@ namespace WatchWpfClient.ViewModels
         private ICommand? _newUserCommand;
         private ICommand? _showNewUserCommand;
         private ICommand? _loginCommand;
+        private ICommand? _showResetPasswordCommand;
         private ICommand? _writeCommand;
         private ICommand? _grantAccessCommand;
         private ICommand? _backCommand;
@@ -77,6 +80,26 @@ namespace WatchWpfClient.ViewModels
             {
                 _newUserPassword = value;
                 OnPropertyChanged(nameof(NewUserPassword));
+            }
+        }
+
+        public string ResetPassword
+        {
+            get => _resetPassword;
+            set
+            {
+                _resetPassword = value;
+                OnPropertyChanged(nameof(ResetPassword));
+            }
+        }
+
+        public string ResetPasswordValidation
+        {
+            get => _resetPasswordValidation;
+            set
+            {
+                _resetPasswordValidation = value;
+                OnPropertyChanged(nameof(ResetPasswordValidation));
             }
         }
 
@@ -243,6 +266,16 @@ namespace WatchWpfClient.ViewModels
             }
         }
 
+        public ICommand ShowResetPasswordCommand
+        {
+            get
+            {
+                if (_showResetPasswordCommand == null)
+                    _showResetPasswordCommand = new RelayCommand((exec) => ShowResetPassword());
+                return _showResetPasswordCommand;
+            }
+        }
+
         public ICommand WriteCommand
         {
             get
@@ -313,6 +346,11 @@ namespace WatchWpfClient.ViewModels
         private void ShowNewUser()
         {
             State = WatchVmState.NewUser;
+        }
+
+        private void ShowResetPassword()
+        {
+            State = WatchVmState.PasswordReset;
         }
 
         private async void Login()
@@ -422,6 +460,14 @@ namespace WatchWpfClient.ViewModels
         private bool LoginOK()
         {
             if (_loginHandle?.Length >= 4 && _loginPassword?.Length >= 8)
+                return true;
+            return false;
+        }
+
+        private bool ResetPasswordOK()
+        {
+            if (_loginHandle?.Length >= 4 && _resetPassword?.Length >= 8
+                && (_resetPassword == _resetPasswordValidation))
                 return true;
             return false;
         }

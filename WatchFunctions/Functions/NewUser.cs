@@ -30,7 +30,7 @@ namespace WatchFunctions.Functions
                 if (existingUser != null)
                     throw new ArgumentException("Handle in use");
                 if (!ComplexPassword(newUser.Password))
-                    throw new ArgumentException("Password not complex enough");
+                    throw new ArgumentException("Password not complex enough.");
                 var newEntity = new UserEntity()
                 {
                     PartitionKey = "user",
