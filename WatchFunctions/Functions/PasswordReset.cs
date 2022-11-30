@@ -36,10 +36,13 @@ namespace WatchFunctions.Functions
                 var signature = new UnicodeEncoding().GetString(decryptedBytes);
                 if (signature != $"{dto.Handle}{dto.ChannelNumber}")
                     throw new ArgumentException("Validation failure");
-                // Set reset due value for end of timeout period
-                user.PasswordResetDue = DateTime.Now.AddDays(3).ToString();               
-                _ = await Entities.UpdateEntityAsync("users", user);
-                return new OkObjectResult("OK");
+                // Hash and salt new password
+                var hashedPassword = HashAndSalt.GetHash(dto.Password, user.Salt);
+                // Replace the original password on the user table
+                user.Password = hashedPassword;
+                await Entities.UpdateEntityAsync("users", user);
+                // Return the new password hash to be used as the PKCS file encyption key
+                return new OkObjectResult(new UnicodeEncoding().GetString(hashedPassword));
             }
             catch (Exception ex)
             {

@@ -32,7 +32,13 @@ namespace WatchFunctions.Functions
                 user.LastAccess = DateTime.Now.ToString();
                 user.SessionToken = Guid.NewGuid().ToString();
                 await Entities.UpdateEntityAsync("users", user);
-                return new OkObjectResult(new LoginDto() { Password = new UnicodeEncoding().GetString(hashedPassword), SessionToken = user.SessionToken} );
+                return new OkObjectResult(new LoginDto()
+                {
+                    // Password value returned is the salted hash of the actual password to be used as the PKCS file encryption key
+                    Password = new UnicodeEncoding().GetString(hashedPassword),
+                    SessionToken = user.SessionToken
+                }
+                );
             }
             catch (Exception ex)
             {
