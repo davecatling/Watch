@@ -10,7 +10,6 @@ namespace WatchFunctions.Model
         public string SessionToken { get; set; }
         public string LastAccess { get; set; }
         public string PublicKey { get; set; }
-        public string PasswordResetDue { get; set; }
 
         public UserEntity() { }
     }
