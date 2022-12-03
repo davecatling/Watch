@@ -55,27 +55,14 @@ namespace WatchWpfClient.Model
             throw new InvalidOperationException(result);
         }
 
-        public async Task<string> PasswordReset(string handle, string channelNumber, string password)
-        {
-            
+        public async Task<string> PasswordReset(PasswordResetDto passwordResetDto)
+        {            
             var url = $"{_config!.URL}PasswordReset?code={_config.PasswordResetCode}";
-            var passwordResetDto = new PasswordResetDto()
-            {
-                ChannelNumber = channelNumber,
-                Handle = handle,
-                Password = password
-            };
-            // Encrypt signature value using private key
-
             var client = new HttpClient();
-            var response = await client.GetAsync(url);
+            var response = await client.PostAsJsonAsync(url, passwordResetDto);
             var result = await response.Content.ReadAsStringAsync();
             if (response.IsSuccessStatusCode)
-            {
-                var dto = JsonConvert.DeserializeObject<LoginDto>(result);
-                _sessionToken = dto.SessionToken;
-                return dto.Password;
-            }
+                return result;
             throw new InvalidOperationException(result);
         }
 
@@ -123,7 +110,7 @@ namespace WatchWpfClient.Model
 
         public async Task<string> PrivateKeyPassword(string channelNumber, string handle)
         {
-            var url = $"{_config!.URL}PrivateKeyPassword?code={_config.PrivateKeyPasswordCode}&handle={WebUtility.UrlEncode(channelNumber)}" +
+            var url = $"{_config!.URL}PrivateKeyPassword?code={_config.PrivateKeyPasswordCode}&channelNumber={WebUtility.UrlEncode(channelNumber)}" +
                 $"&handle={WebUtility.UrlEncode(handle)}";
             var client = new HttpClient();
             var response = await client.GetAsync(url);

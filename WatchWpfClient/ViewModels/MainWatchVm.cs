@@ -36,6 +36,7 @@ namespace WatchWpfClient.ViewModels
         private ICommand? _showNewUserCommand;
         private ICommand? _loginCommand;
         private ICommand? _showResetPasswordCommand;
+        private ICommand? _resetPasswordCommand;
         private ICommand? _writeCommand;
         private ICommand? _grantAccessCommand;
         private ICommand? _backCommand;
@@ -316,6 +317,16 @@ namespace WatchWpfClient.ViewModels
             }
         }
 
+        public ICommand ResetPasswordCommand
+        {
+            get
+            {
+                if (_resetPasswordCommand == null)
+                    _resetPasswordCommand = new RelayCommand((exec) => PasswordReset(), (canExec) => ResetPasswordOK());
+                return _resetPasswordCommand;
+            }
+        }
+
         private bool NewUserOK()
         {
             if (_newUserHandle.Length >= 8 && _newUserPassword.Length >= 8)
@@ -418,6 +429,23 @@ namespace WatchWpfClient.ViewModels
                 }
                 else
                     Status = result;
+            }
+            catch (Exception ex)
+            {
+                Status = ex.Message;
+            }
+        }
+
+        private async void PasswordReset()
+        {
+            Status = "Please wait...";
+            try
+            {
+                var result = await _watchApp.PasswordReset(_loginHandle, _resetPasswordValidation);
+                if (result)
+                    Status = "Password has been reset";
+                else
+                    Status = string.Empty;
             }
             catch (Exception ex)
             {

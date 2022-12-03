@@ -60,12 +60,13 @@ namespace WatchWpfClient.Model
             return true;
         }
 
-        public async Task<bool> PasswordReset(string username, string channelNumber, string password)
+        public async Task<bool> PasswordReset(string handle, string newPassword)
         {
-            return true;
+            var watchRsa = new WatchRsa(_functionProxy!);
+            return await watchRsa.UpdatePrivateKeyPassword(handle, _channelNumber!, newPassword);
         }
 
-        //var privateKeyPassword = await PrivateKeyPassword(channelNumber, password);
+        
 
         public async Task<bool> Read()
         {

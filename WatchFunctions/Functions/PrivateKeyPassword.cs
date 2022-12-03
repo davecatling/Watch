@@ -14,7 +14,7 @@ namespace WatchFunctions.Functions
     {
         [FunctionName("PrivateKeyPassword")]
         public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req,
             ILogger log)
         {
             try
@@ -24,9 +24,12 @@ namespace WatchFunctions.Functions
                 // Validate handle has access to channel
                 var user = await Entities.GetEntityAsync<UserEntity>("users", "user", handle);
                 if (user == null)
-                    throw new ArgumentException("Validation failure");                
+                    throw new ArgumentException("Validation failure");
+                var hasAccess = await Entities.HasAccess(channelNumber, user.RowKey);
+                if (!hasAccess)
+                    throw new InvalidOperationException("Validation failure");
                 // Return the PKCS file encyption key
-                return new OkObjectResult(new UnicodeEncoding().GetString(user.Password));
+                return new OkObjectResult(new UTF8Encoding().GetString(user.Password));
             }
             catch (Exception ex)
             {

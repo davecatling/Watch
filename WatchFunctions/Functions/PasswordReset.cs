@@ -32,9 +32,8 @@ namespace WatchFunctions.Functions
                 RSACryptoServiceProvider rsa = new();
                 rsa.KeySize = 2048;
                 rsa.FromXmlString(user.PublicKey);
-                var decryptedBytes = rsa.Decrypt(dto.Signature, true);
-                var signature = new UnicodeEncoding().GetString(decryptedBytes);
-                if (signature != $"{dto.Handle}{dto.ChannelNumber}")
+                var valueToMatch = new UnicodeEncoding().GetBytes($"{dto.ChannelNumber}{dto.Handle}");
+                if (!rsa.VerifyData(valueToMatch, SHA256.Create(), dto.Signature))
                     throw new ArgumentException("Validation failure");
                 // Hash and salt new password
                 var hashedPassword = HashAndSalt.GetHash(dto.Password, user.Salt);
@@ -42,7 +41,7 @@ namespace WatchFunctions.Functions
                 user.Password = hashedPassword;
                 await Entities.UpdateEntityAsync("users", user);
                 // Return the new password hash to be used as the PKCS file encyption key
-                return new OkObjectResult(new UnicodeEncoding().GetString(hashedPassword));
+                return new OkObjectResult(new UTF8Encoding().GetString(hashedPassword));
             }
             catch (Exception ex)
             {
