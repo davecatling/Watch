@@ -49,15 +49,36 @@ namespace WatchWpfClient.Model
             return rsa;
         }
 
-        internal async Task<bool> UpdatePrivateKeyPassword(string username, string channelNumber, string newLoginPassword)
+        internal async Task<bool> UpdatePrivateKeyPassword(string handle, string channelNumber, string newLoginPassword)
         {
             // Get current private key password
-            var currentPrivateKeyPassword = await _functionProxy.PrivateKeyPassword(channelNumber, username); 
+            var currentPrivateKeyPassword = await _functionProxy.PrivateKeyPassword(channelNumber, handle);
             // Load key into rsa and encrypt signature
-            var rsa = PrivateRsa(username, currentPrivateKeyPassword);
-
+            byte[] signature;
+            var rsa = PrivateRsa(handle, currentPrivateKeyPassword);
+            var plainBytes = _byteConverter.GetBytes($"{channelNumber}{handle}");
+            signature = rsa.SignData(plainBytes, SHA256.Create());
             // Pass dto to function and receive new private key password
+            var dto = new PasswordResetDto()
+            {
+                ChannelNumber = channelNumber,
+                Handle = handle,
+                Password = newLoginPassword,
+                Signature = signature
+            };
+            var pkcsEncryptionKey = await _functionProxy.PasswordReset(dto);
             // Delete old PKCS file and rewrite with new private key password
+            var path = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"\Watch");
+            Directory.CreateDirectory(path);
+            var privateKey = rsa.ExportEncryptedPkcs8PrivateKey((ReadOnlySpan<char>)pkcsEncryptionKey,
+                new PbeParameters(PbeEncryptionAlgorithm.Aes256Cbc, HashAlgorithmName.SHA256, 500000));
+            var keyFileName = handle + ".p8";
+            var fullPath = Path.Join(path, keyFileName);
+            if (File.Exists(fullPath)) File.Delete(fullPath);
+            using (BinaryWriter binaryWriter = new(File.Open(fullPath, FileMode.Create)))
+            {
+                binaryWriter.Write(privateKey);
+            }
             return true;
         }
 
