@@ -1,10 +1,11 @@
 {
-  "URL": "https://watchapi.azurewebsites.net/api/",
+  "URL": "http://localhost:7071/api/",
   "LoginCode": "oOc9qN4Mg3geUnIvVFWjEmjDT90GsSKRNNam7iVsKkn2AzFuUBippw==",
   "NewUserCode": "nGrQnLosWNEhTJE3MDuVx4SXOCY4FfB6ZE3_D2VUAawIAzFu3BuwnQ==",
   "ReadCode": "ofGnlt6DrZrHMIC5-TMzyKh_cIT2_2xVB-L8db2Yb082AzFu7nGhVQ==",
   "WriteCode": "sTGtsgbxsYX7E4zfjJJfn-pPAcv51uk6TcYo2FIV4xomAzFu1EQTFQ==",
   "GrantAccessCode": "vSUhF3WeKuob1dOt0oVN6fzTWtNL2ogmmp5BqBkBmRT7AzFuvRehWw==",
   "PublicKeyCode": "MorB_mE59TeVSq9x02xoMyAGh0yr5aGfaumEUn4JIFhEAzFu4A6JNw==",
-  "PasswordResetCode": "6CUORjOG0KrD-3SldTrWkjzF4V7a_5LlQUhtCYbBDUUkAzFu1Uf7uA=="
+  "PasswordResetCode": "6CUORjOG0KrD-3SldTrWkjzF4V7a_5LlQUhtCYbBDUUkAzFu1Uf7uA==",
+  "PrivateKeyPasswordCode": "kIosgWZqCHeT45BATf37mzLU31RhOQQ0dYhLCeiRA1ByAzFu9A9uZA=="
 }

@@ -49,11 +49,23 @@ namespace WatchWpfClient.Model
             return rsa;
         }
 
+        internal async Task<bool> UpdatePrivateKeyPassword(string username, string channelNumber, string newLoginPassword)
+        {
+            // Get current private key password
+            var currentPrivateKeyPassword = await _functionProxy.PrivateKeyPassword(channelNumber, username); 
+            // Load key into rsa and encrypt signature
+            var rsa = PrivateRsa(username, currentPrivateKeyPassword);
+
+            // Pass dto to function and receive new private key password
+            // Delete old PKCS file and rewrite with new private key password
+            return true;
+        }
+
         internal static RSACryptoServiceProvider PrivateRsa(string handle, string password)
         {
             var path = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"\Watch");
             var keyPath = Path.Join(path, handle + ".p8");
-            
+
             RSACryptoServiceProvider rsa = new();
             rsa.KeySize = 2048;
             byte[] keyBytes;

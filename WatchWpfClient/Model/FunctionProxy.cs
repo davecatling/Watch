@@ -57,6 +57,7 @@ namespace WatchWpfClient.Model
 
         public async Task<string> PasswordReset(string handle, string channelNumber, string password)
         {
+            
             var url = $"{_config!.URL}PasswordReset?code={_config.PasswordResetCode}";
             var passwordResetDto = new PasswordResetDto()
             {
@@ -73,7 +74,7 @@ namespace WatchWpfClient.Model
             {
                 var dto = JsonConvert.DeserializeObject<LoginDto>(result);
                 _sessionToken = dto.SessionToken;
-                return dto;
+                return dto.Password;
             }
             throw new InvalidOperationException(result);
         }
@@ -113,6 +114,18 @@ namespace WatchWpfClient.Model
             var client = new HttpClient();
             client.DefaultRequestHeaders.Authorization =
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _sessionToken);
+            var response = await client.GetAsync(url);
+            var result = await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
+                return result;
+            throw new InvalidOperationException(result);
+        }
+
+        public async Task<string> PrivateKeyPassword(string channelNumber, string handle)
+        {
+            var url = $"{_config!.URL}PrivateKeyPassword?code={_config.PrivateKeyPasswordCode}&handle={WebUtility.UrlEncode(channelNumber)}" +
+                $"&handle={WebUtility.UrlEncode(handle)}";
+            var client = new HttpClient();
             var response = await client.GetAsync(url);
             var result = await response.Content.ReadAsStringAsync();
             if (response.IsSuccessStatusCode)

@@ -40,7 +40,7 @@ namespace WatchFunctions.Functions
                 newEntity.Salt = HashAndSalt.GenerateSalt();
                 newEntity.Password = HashAndSalt.GetHash(newUser.Password, newEntity.Salt);
                 _ = await Entities.SaveEntityAsync("users", newEntity);
-                return new OkObjectResult(new UnicodeEncoding().GetString(newEntity.Password));
+                return new OkObjectResult(new UTF8Encoding().GetString(newEntity.Password));
             }
             catch (Exception ex)
             {

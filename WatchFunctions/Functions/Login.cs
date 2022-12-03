@@ -35,7 +35,7 @@ namespace WatchFunctions.Functions
                 return new OkObjectResult(new LoginDto()
                 {
                     // Password value returned is the salted hash of the actual password to be used as the PKCS file encryption key
-                    Password = new UnicodeEncoding().GetString(hashedPassword),
+                    Password = new UTF8Encoding().GetString(hashedPassword),
                     SessionToken = user.SessionToken
                 }
                 );
