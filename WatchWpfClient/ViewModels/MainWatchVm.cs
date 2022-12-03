@@ -21,6 +21,7 @@ namespace WatchWpfClient.ViewModels
         private ObservableCollection<Message>? _messages;
         private string _newUserHandle;
         private string _newUserPassword;
+        private string _newUserPasswordValidation;
         private string _resetPassword;
         private string _resetPasswordValidation;
         private string _loginHandle;
@@ -81,6 +82,16 @@ namespace WatchWpfClient.ViewModels
             {
                 _newUserPassword = value;
                 OnPropertyChanged(nameof(NewUserPassword));
+            }
+        }
+
+        public string NewUserPasswordValidation
+        {
+            get => _newUserPasswordValidation;
+            set
+            {
+                _newUserPasswordValidation = value;
+                OnPropertyChanged(nameof(NewUserPasswordValidation));
             }
         }
 
@@ -206,6 +217,9 @@ namespace WatchWpfClient.ViewModels
         {
             NewUserHandle = String.Empty;
             NewUserPassword = String.Empty;
+            NewUserPasswordValidation = String.Empty;
+            ResetPassword = String.Empty;
+            ResetPasswordValidation = String.Empty;
             LoginHandle = String.Empty;
             LoginPassword = String.Empty;
             NewMessage = String.Empty;
@@ -329,7 +343,8 @@ namespace WatchWpfClient.ViewModels
 
         private bool NewUserOK()
         {
-            if (_newUserHandle.Length >= 8 && _newUserPassword.Length >= 8)
+            if ((_newUserHandle.Length >= 8 && _newUserPassword.Length >= 8)
+                && (_newUserPassword == _newUserPasswordValidation))
                 return true;
             return false;
         }
