@@ -10,6 +10,7 @@
         public string ChannelHandlesCode { get; set; }
         public string GrantAccessCode { get; set; }
         public string PublicKeyCode { get; set; }
+        public string PrivateKeyPasswordCode { get; set; }
         public string PasswordResetCode { get; set; }
     }
 }
