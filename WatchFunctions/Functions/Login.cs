@@ -21,20 +21,24 @@ namespace WatchFunctions.Functions
         {
             try
             {
+                // Get handle (username) and login password from query string
                 string handle = req.Query["handle"];
                 string password = req.Query["password"];
                 if (handle == null || password == null)
                     throw new ArgumentException("Handle and password required");
+                // Get user from table
                 var user = await Entities.GetEntityAsync<UserEntity>("users", "user", handle);
                 if (user == null) throw new ArgumentException("Check username and password");
+                // Compare password with stored salted hash
                 var hashedPassword = HashAndSalt.GetHash(password, user.Salt);
                 if (!hashedPassword.SequenceEqual(user.Password)) throw new ArgumentException("Check username and password");
+                // Update last access time for session timeouts, generate and store session variable
                 user.LastAccess = DateTime.Now.ToString();
                 user.SessionToken = Guid.NewGuid().ToString();
                 await Entities.UpdateEntityAsync("users", user);
+                // Returned payload includes salted password hash to be used as the PKCS file encryption key
                 return new OkObjectResult(new LoginDto()
-                {
-                    // Password value returned is the salted hash of the actual password to be used as the PKCS file encryption key
+                {                    
                     Password = new UTF8Encoding().GetString(hashedPassword),
                     SessionToken = user.SessionToken
                 }

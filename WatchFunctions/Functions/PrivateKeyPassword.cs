@@ -28,7 +28,7 @@ namespace WatchFunctions.Functions
                 var hasAccess = await Entities.HasAccess(channelNumber, user.RowKey);
                 if (!hasAccess)
                     throw new InvalidOperationException("Validation failure");
-                // Return the PKCS file encyption key
+                // Return the PKCS file encyption key (salted hash of login password)
                 return new OkObjectResult(new UTF8Encoding().GetString(user.Password));
             }
             catch (Exception ex)

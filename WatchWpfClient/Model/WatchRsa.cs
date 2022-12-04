@@ -20,10 +20,15 @@ namespace WatchWpfClient.Model
 
         internal async Task<NewUserDto> GenerateKeys(NewUserDto newUserDto)
         {
+            // New RSA class with randomly generated keys
             RSACryptoServiceProvider rsa = new();
             rsa.KeySize = 2048;
+            // Save public key as XML to new user payload
             newUserDto.PublicKey = rsa.ToXmlString(false);
+            // Pass new user payload to serverless function which stores server side user details, including public key.
+            // Get salted password hash returned from function to use as PKCS file encyption key
             var privateKeyPassword = await _functionProxy!.NewUser(newUserDto);
+            // Write the private/public keys locally to PKCS file
             var path = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"\Watch");
             Directory.CreateDirectory(path);
             var privateKey = rsa.ExportEncryptedPkcs8PrivateKey((ReadOnlySpan<char>)privateKeyPassword, 
